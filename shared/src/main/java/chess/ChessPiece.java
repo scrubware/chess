@@ -190,7 +190,7 @@ public class ChessPiece {
         boolean in_starting_row = (position.getRow() == 2 && row_polarity == 1) || (position.getRow() == 7 && row_polarity == -1);
 
         if ((position.getRow() == 7 && row_polarity == 1) || (position.getRow() == 2 && row_polarity == -1)) {
-            promos = new PieceType[]{ PieceType.BISHOP, PieceType.KING, PieceType.QUEEN, PieceType.ROOK };
+            promos = new PieceType[]{ PieceType.BISHOP, PieceType.QUEEN, PieceType.ROOK, PieceType.KNIGHT };
         }
 
         for (var promo : promos) {
@@ -209,6 +209,10 @@ public class ChessPiece {
             if (isPositionKillable(board,position.shift(row_polarity,1))) {
                 set.add(new ChessMove(position,position.shift(row_polarity,1),promo));
             }
+        }
+
+        for (var move : set) {
+            System.out.println(move);
         }
 
         return set;

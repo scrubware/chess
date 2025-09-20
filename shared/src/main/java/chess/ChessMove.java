@@ -62,4 +62,19 @@ public class ChessMove {
         result = 31 * result + Objects.hashCode(promotionPiece);
         return result;
     }
+
+    @Override
+    public String toString() {
+        String name = "NULL";
+        if (promotionPiece != null) {
+            name = switch (promotionPiece) {
+                case ChessPiece.PieceType.KNIGHT -> "KNIGHT";
+                case ChessPiece.PieceType.QUEEN -> "QUEEN";
+                case ChessPiece.PieceType.BISHOP -> "BISHOP";
+                case ChessPiece.PieceType.ROOK -> "ROOK";
+                default -> "";
+            };
+        }
+        return "FROM: " + startPosition.getRow() + "," + startPosition.getColumn() + " TO: " + endPosition.getRow() + "," + endPosition.getColumn() + " PRO: " + name;
+    }
 }

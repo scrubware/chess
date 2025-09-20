@@ -60,6 +60,40 @@ public class ChessPiece {
         return type;
     }
 
+    private boolean isPositionCapturable(ChessGame.TeamColor color, ChessBoard board, ChessPosition position) {
+        return board.getPiece(position) == null || board.getPiece(position).getTeamColor() != color;
+    }
+
+    private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+        return set;
+    }
+
+    private Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+        return set;
+    }
+
+    private Collection<ChessMove> getBishopMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+        return set;
+    }
+
+    private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+        return set;
+    }
+
+    private Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+        return set;
+    }
+
+    private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+        return set;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -68,6 +102,13 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new HashSet<ChessMove>();
+        return switch (getPieceType()) {
+            case KING -> getKingMoves(board, myPosition);
+            case QUEEN -> getQueenMoves(board, myPosition);
+            case BISHOP -> getBishopMoves(board, myPosition);
+            case KNIGHT -> getKnightMoves(board, myPosition);
+            case ROOK -> getRookMoves(board, myPosition);
+            case PAWN -> getPawnMoves(board, myPosition);
+        };
     }
 }

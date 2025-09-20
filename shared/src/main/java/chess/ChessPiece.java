@@ -187,6 +187,7 @@ public class ChessPiece {
         PieceType[] promos = { null };
 
         int row_polarity = color == ChessGame.TeamColor.WHITE ? 1 : -1;
+        boolean in_starting_row = (position.getRow() == 2 && row_polarity == 1) || (position.getRow() == 7 && row_polarity == -1);
 
         if ((position.getRow() == 7 && row_polarity == 1) || (position.getRow() == 2 && row_polarity == -1)) {
             promos = new PieceType[]{ PieceType.BISHOP, PieceType.KING, PieceType.QUEEN, PieceType.ROOK };
@@ -199,6 +200,10 @@ public class ChessPiece {
 
             if (isPositionEmpty(board,position.shift(row_polarity,0))) {
                 set.add(new ChessMove(position,position.shift(row_polarity,0),promo));
+
+                if (isPositionEmpty(board,position.shift(row_polarity*2,0)) && in_starting_row) {
+                    set.add(new ChessMove(position,position.shift(row_polarity*2,0),promo));
+                }
             }
 
             if (isPositionKillable(board,position.shift(row_polarity,1))) {

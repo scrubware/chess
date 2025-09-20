@@ -88,10 +88,6 @@ public class ChessPiece {
             }
         }
 
-//        for (var element : set) {
-//            System.out.println(element.endPosition);
-//        }
-
         return set;
     }
 
@@ -123,15 +119,18 @@ public class ChessPiece {
         set.addAll(getLineMoves(board,position,-1,1));
         set.addAll(getLineMoves(board,position,1,1));
 
-        for (var element : set) {
-            System.out.println(element.endPosition);
-        }
-
         return set;
     }
 
-    private Collection<ChessMove> getHorizontalMoves(ChessBoard board, ChessPosition position) {
-        return getAdjacentMoves(board, position);
+    private Collection<ChessMove> getCardinalMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+
+        set.addAll(getLineMoves(board,position,1,0));
+        set.addAll(getLineMoves(board,position,-1,0));
+        set.addAll(getLineMoves(board,position,0,1));
+        set.addAll(getLineMoves(board,position,0,-1));
+
+        return set;
     }
 
     private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition position) {
@@ -153,8 +152,7 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition position) {
-        var set = new HashSet<ChessMove>();
-        return set;
+        return getCardinalMoves(board, position);
     }
 
     private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition position) {

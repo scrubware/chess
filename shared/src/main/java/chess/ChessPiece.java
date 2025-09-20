@@ -95,7 +95,7 @@ public class ChessPiece {
         return set;
     }
 
-    private Collection<ChessMove> getDiagonalMoves(ChessBoard board, ChessPosition position) {
+    private Collection<ChessMove> getLineMoves(ChessBoard board, ChessPosition position, int x_step, int y_step) {
         var set = new HashSet<ChessMove>();
 
         var position_to_check = position;
@@ -104,12 +104,23 @@ public class ChessPiece {
                 set.add(new ChessMove(position,position_to_check,null));
             }
 
-            if (isPositionEmpty(board,position_to_check)) {
-                position_to_check = position.shift(i,i);
+            if (isPositionEmpty(board,position_to_check) || position.equals(position_to_check)) {
+                position_to_check = position.shift(i * x_step,i * y_step);
             } else {
                 break;
             }
         }
+
+        return set;
+    }
+
+    private Collection<ChessMove> getDiagonalMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+
+        set.addAll(getLineMoves(board,position,-1,-1));
+        set.addAll(getLineMoves(board,position,1,-1));
+        set.addAll(getLineMoves(board,position,-1,1));
+        set.addAll(getLineMoves(board,position,1,1));
 
         for (var element : set) {
             System.out.println(element.endPosition);

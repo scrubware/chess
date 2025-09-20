@@ -181,10 +181,12 @@ public class ChessPiece {
         return getCardinalMoves(board,position);
     }
 
-    private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition position, int row_polarity) {
+    private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition position) {
         var set = new HashSet<ChessMove>();
 
         PieceType[] promos = { null };
+
+        int row_polarity = color == ChessGame.TeamColor.WHITE ? 1 : -1;
 
         if ((position.getRow() == 7 && row_polarity == 1) || (position.getRow() == 2 && row_polarity == -1)) {
             promos = new PieceType[]{ PieceType.BISHOP, PieceType.KING, PieceType.QUEEN, PieceType.ROOK };
@@ -202,18 +204,6 @@ public class ChessPiece {
             if (isPositionKillable(board,position.shift(row_polarity,1))) {
                 set.add(new ChessMove(position,position.shift(row_polarity,1),promo));
             }
-        }
-
-        return set;
-    }
-
-    private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition position) {
-        var set = new HashSet<ChessMove>();
-
-        if (color == ChessGame.TeamColor.WHITE) {
-            set.addAll(getPawnMoves(board,position,1));
-        } else {
-            set.addAll(getPawnMoves(board,position,-1));
         }
 
         return set;

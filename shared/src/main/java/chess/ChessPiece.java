@@ -152,6 +152,24 @@ public class ChessPiece {
 
     private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition position) {
         var set = new HashSet<ChessMove>();
+
+        ChessPosition[] positions = {
+                position.shift(-2,1),
+                position.shift(-2,-1),
+                position.shift(2,1),
+                position.shift(2,-1),
+                position.shift(1,-2),
+                position.shift(-1,-2),
+                position.shift(1,2),
+                position.shift(-1,2)
+        };
+
+        for (var position_to_check : positions) {
+            if (isPositionCapturable(board,position_to_check)) {
+                set.add(new ChessMove(position,position_to_check,null));
+            }
+        }
+
         return set;
     }
 

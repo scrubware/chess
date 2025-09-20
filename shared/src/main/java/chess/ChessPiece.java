@@ -60,12 +60,30 @@ public class ChessPiece {
         return type;
     }
 
-    private boolean isPositionCapturable(ChessGame.TeamColor color, ChessBoard board, ChessPosition position) {
+    private boolean isPositionCapturable(ChessBoard board, ChessPosition position) {
         return board.getPiece(position) == null || board.getPiece(position).getTeamColor() != color;
     }
 
     private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition position) {
         var set = new HashSet<ChessMove>();
+
+        ChessPosition[] positions = {
+                position.shift(-1,0),
+                position.shift(-1,-1),
+                position.shift(0,-1),
+                position.shift(1,-1),
+                position.shift(1,0),
+                position.shift(1,1),
+                position.shift(0,1),
+                position.shift(-1,1)
+        };
+
+        for (var position_to_check : positions) {
+            if (isPositionCapturable(board,position_to_check)) {
+                set.add(new ChessMove(position,position_to_check,null));
+            }
+        }
+
         return set;
     }
 

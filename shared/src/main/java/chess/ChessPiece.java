@@ -134,16 +134,20 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition position) {
-        return getAdjacentMoves(board, position);
+        return getAdjacentMoves(board,position);
     }
 
     private Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition position) {
         var set = new HashSet<ChessMove>();
+
+        set.addAll(getCardinalMoves(board,position));
+        set.addAll(getDiagonalMoves(board,position));
+
         return set;
     }
 
     private Collection<ChessMove> getBishopMoves(ChessBoard board, ChessPosition position) {
-        return getDiagonalMoves(board, position);
+        return getDiagonalMoves(board,position);
     }
 
     private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition position) {
@@ -152,7 +156,7 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition position) {
-        return getCardinalMoves(board, position);
+        return getCardinalMoves(board,position);
     }
 
     private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition position) {

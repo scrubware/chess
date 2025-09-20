@@ -64,7 +64,17 @@ public class ChessPiece {
         return board.getPiece(position) == null || board.getPiece(position).getTeamColor() != color;
     }
 
-    private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition position) {
+    private boolean isPositionEmpty(ChessBoard board, ChessPosition position) {
+        return board.getPiece(position) == null;
+    }
+
+    private void addIfCapturable(Collection<ChessMove> collection, ChessBoard board, ChessPosition position) {
+        if (isPositionCapturable(board,position)) {
+            collection.add(new ChessMove(position,position,null));
+        }
+    }
+
+    private Collection<ChessMove> getAdjacentMoves(ChessBoard board, ChessPosition position) {
         var set = new HashSet<ChessMove>();
 
         ChessPosition[] positions = {
@@ -79,12 +89,41 @@ public class ChessPiece {
         };
 
         for (var position_to_check : positions) {
-            if (isPositionCapturable(board,position_to_check)) {
-                set.add(new ChessMove(position,position_to_check,null));
-            }
+            addIfCapturable(set,board,position_to_check);
         }
 
         return set;
+    }
+
+    private Collection<ChessMove> getDiagonalMoves(ChessBoard board, ChessPosition position) {
+        var set = new HashSet<ChessMove>();
+
+        var position_to_check = position;
+        for (int i = 1; i <= 8; i ++) {
+            if (isPositionCapturable(board,position_to_check)) {
+                set.add(new ChessMove(position,position_to_check,null));
+            }
+
+            if (isPositionEmpty(board,position_to_check)) {
+                position_to_check = position.shift(i,i);
+            } else {
+                break;
+            }
+        }
+
+        for (var element : set) {
+            System.out.println(element.endPosition);
+        }
+
+        return set;
+    }
+
+    private Collection<ChessMove> getHorizontalMoves(ChessBoard board, ChessPosition position) {
+        return getAdjacentMoves(board, position);
+    }
+
+    private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition position) {
+        return getAdjacentMoves(board, position);
     }
 
     private Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition position) {
@@ -93,8 +132,7 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> getBishopMoves(ChessBoard board, ChessPosition position) {
-        var set = new HashSet<ChessMove>();
-        return set;
+        return getDiagonalMoves(board, position);
     }
 
     private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition position) {

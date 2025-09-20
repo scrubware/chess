@@ -49,6 +49,11 @@ public class ChessPosition {
         return Objects.hash(row, col);
     }
 
+    @Override
+    public String toString() {
+        return "ROW: " + row + " | COL: " + col;
+    }
+
     public ChessPosition shift(int x, int y) {
         return new ChessPosition(Math.clamp(row + x,1,8),Math.clamp(col+y,1,8));
     }

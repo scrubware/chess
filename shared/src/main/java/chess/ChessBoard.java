@@ -12,9 +12,7 @@ public class ChessBoard {
 
     final private ChessPiece[][] board = new ChessPiece[8][8];
 
-    public ChessBoard() {
-        
-    }
+    public ChessBoard() {}
 
     /**
      * Adds a chess piece to the chessboard
@@ -26,17 +24,17 @@ public class ChessBoard {
         board[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
-    /*private void addPiece(int row, int col, ChessGame.TeamColor team, ChessPiece.PieceType type) {
+    /**
+     * Adds a chess piece to the chessboard (avoiding the ChessPosition/ChessPiece boilerplate)
+     *
+     * @param row the row to add the piece to
+     * @param col the column to add the piece to
+     * @param team the team color of the piece
+     * @param type the piece type
+     */
+    private void addPiece(int row, int col, ChessGame.TeamColor team, ChessPiece.PieceType type) {
         board[row-1][col-1] = new ChessPiece(team,type);
-    }*/
-
-    public void removePiece(ChessPosition position) {
-        board[position.getRow()-1][position.getColumn()-1] = null;
     }
-
-    /*private void removePiece(int row, int col) {
-        board[row-1][col-1] = null;
-    }*/
 
     /**
      * Gets a chess piece on the chessboard
@@ -49,19 +47,15 @@ public class ChessBoard {
         return board[position.getRow()-1][position.getColumn()-1];
     }
 
-    /*private ChessPiece getPiece(int row, int col) {
-        return board[row-1][col-1];
-    }*/
-
-    /*private void createPawnRow(int row, ChessGame.TeamColor team) {
+    private void createPawnRow(int row, ChessGame.TeamColor team) {
         for (int col = 1; col <= 8; col ++) {
             var position = new ChessPosition(row,col);
             var piece = new ChessPiece(team, ChessPiece.PieceType.PAWN);
             addPiece(position,piece);
         }
-    }*/
+    }
 
-    /*private void createBackRow(int row, ChessGame.TeamColor team) {
+    private void createBackRow(int row, ChessGame.TeamColor team) {
         addPiece(row,1,team, ChessPiece.PieceType.ROOK);
         addPiece(row,2,team, ChessPiece.PieceType.KNIGHT);
         addPiece(row,3,team, ChessPiece.PieceType.BISHOP);
@@ -70,26 +64,18 @@ public class ChessBoard {
         addPiece(row,6,team, ChessPiece.PieceType.BISHOP);
         addPiece(row,7,team, ChessPiece.PieceType.KNIGHT);
         addPiece(row,8,team, ChessPiece.PieceType.ROOK);
-    }*/
-
-    /*public void createStartingBoard() {
-        createBackRow(1,ChessGame.TeamColor.WHITE);
-        createPawnRow(2,ChessGame.TeamColor.WHITE);
-
-        createBackRow(8,ChessGame.TeamColor.BLACK);
-        createPawnRow(7,ChessGame.TeamColor.BLACK);
-    }*/
+    }
 
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        for (int row = 0; row < 8; row ++) {
-            for (int col = 0; col < 8; col ++) {
-                board[row][col] = null;
-            }
-        }
+        createBackRow(1,ChessGame.TeamColor.WHITE);
+        createPawnRow(2,ChessGame.TeamColor.WHITE);
+
+        createBackRow(8,ChessGame.TeamColor.BLACK);
+        createPawnRow(7,ChessGame.TeamColor.BLACK);
     }
 
     @Override
@@ -105,5 +91,26 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(board);
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder out = new StringBuilder();
+        for (int row = 8; row >= 1; row --) {
+            out.append("|");
+            for (int col = 1; col <= 8; col ++) {
+                var piece = getPiece(new ChessPosition(row, col));
+                if (piece == null) {
+                    out.append(" |");
+                } else {
+                    out.append(piece).append("|");
+                }
+
+            }
+            out.append("\n");
+        }
+
+        return out.toString();
     }
 }

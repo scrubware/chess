@@ -34,6 +34,22 @@ public class ChessPiece {
         return Objects.hash(color, type);
     }
 
+    @Override
+    public String toString() {
+        String c = switch (type) {
+            case PieceType.KING -> "k";
+            case PieceType.QUEEN -> "q";
+            case PieceType.BISHOP -> "b";
+            case PieceType.KNIGHT -> "n";
+            case PieceType.ROOK -> "r";
+            case PieceType.PAWN -> "p";
+        };
+
+        c = color == ChessGame.TeamColor.WHITE ? c.toUpperCase() : c;
+
+        return c;
+    }
+
     /**
      * The various different chess piece options
      */
@@ -209,10 +225,6 @@ public class ChessPiece {
             if (isPositionKillable(board,position.shift(row_polarity,1))) {
                 set.add(new ChessMove(position,position.shift(row_polarity,1),promo));
             }
-        }
-
-        for (var move : set) {
-            System.out.println(move);
         }
 
         return set;

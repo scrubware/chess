@@ -68,12 +68,6 @@ public class ChessPiece {
         return position != null && board.getPiece(position) == null;
     }
 
-    private void addIfCapturable(Collection<ChessMove> collection, ChessBoard board, ChessPosition position) {
-        if (isPositionCapturable(board,position)) {
-            collection.add(new ChessMove(position,position,null));
-        }
-    }
-
     private Collection<ChessMove> getAdjacentMoves(ChessBoard board, ChessPosition position) {
         var set = new HashSet<ChessMove>();
 
@@ -89,8 +83,14 @@ public class ChessPiece {
         };
 
         for (var position_to_check : positions) {
-            addIfCapturable(set,board,position_to_check);
+            if (isPositionCapturable(board,position_to_check)) {
+                set.add(new ChessMove(position,position_to_check,null));
+            }
         }
+
+//        for (var element : set) {
+//            System.out.println(element.endPosition);
+//        }
 
         return set;
     }

@@ -54,9 +54,9 @@ public class ChessPosition {
         return "ROW: " + row + " | COL: " + col;
     }
 
-    public ChessPosition shift(int x, int y) {
-        if (row + x > 8 || row + x < 1) return null;
-        if (col + y > 8 || col + y < 1) return null;
-        return new ChessPosition(row + x,col + y);
+    public ChessPosition shift(int r, int c) {
+        if (row + r > 8 || row + r < 1) return null;
+        if (col + c > 8 || col + c < 1) return null;
+        return new ChessPosition(row + r,col + c);
     }
 }

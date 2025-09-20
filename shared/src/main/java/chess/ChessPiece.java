@@ -61,11 +61,11 @@ public class ChessPiece {
     }
 
     private boolean isPositionCapturable(ChessBoard board, ChessPosition position) {
-        return board.getPiece(position) == null || board.getPiece(position).getTeamColor() != color;
+        return position != null && (board.getPiece(position) == null || board.getPiece(position).getTeamColor() != color);
     }
 
     private boolean isPositionEmpty(ChessBoard board, ChessPosition position) {
-        return board.getPiece(position) == null;
+        return position != null && board.getPiece(position) == null;
     }
 
     private void addIfCapturable(Collection<ChessMove> collection, ChessBoard board, ChessPosition position) {
@@ -100,6 +100,7 @@ public class ChessPiece {
 
         var position_to_check = position;
         for (int i = 1; i <= 8; i ++) {
+
             if (isPositionCapturable(board,position_to_check)) {
                 set.add(new ChessMove(position,position_to_check,null));
             }

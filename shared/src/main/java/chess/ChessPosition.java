@@ -55,6 +55,8 @@ public class ChessPosition {
     }
 
     public ChessPosition shift(int x, int y) {
-        return new ChessPosition(Math.clamp(row + x,1,8),Math.clamp(col+y,1,8));
+        if (row + x > 8 || row + x < 1) return null;
+        if (col + y > 8 || col + y < 1) return null;
+        return new ChessPosition(row + x,col + y);
     }
 }

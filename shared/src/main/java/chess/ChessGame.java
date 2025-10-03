@@ -112,6 +112,9 @@ public class ChessGame {
 
         board.addPiece(move.startPosition, null);
         board.addPiece(move.endPosition, piece);
+
+        // Change Polarity (ternary)
+        current_team = current_team == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     private ChessPosition getKingPosition(ChessBoard board, TeamColor teamColor) {

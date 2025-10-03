@@ -52,7 +52,10 @@ public class ChessMove {
         }
 
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+        boolean start = Objects.equals(startPosition, chessMove.startPosition);
+        boolean end = Objects.equals(endPosition, chessMove.endPosition);
+        boolean promo = promotionPiece == chessMove.promotionPiece;
+        return start && end && promo;
     }
 
     @Override
@@ -75,6 +78,10 @@ public class ChessMove {
                 default -> "";
             };
         }
-        return "FROM: " + startPosition.getRow() + "," + startPosition.getColumn() + " TO: " + endPosition.getRow() + "," + endPosition.getColumn() + " PRO: " + name;
+
+        String from = "FROM: " + startPosition.getRow() + "," + startPosition.getColumn();
+        String to = " TO: " + endPosition.getRow() + "," + endPosition.getColumn();
+        String promo = " PRO: " + name;
+        return from + to + promo;
     }
 }

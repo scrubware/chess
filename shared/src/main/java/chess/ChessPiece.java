@@ -107,27 +107,27 @@ public class ChessPiece {
                 position.shift(-1,1)
         };
 
-        for (var position_to_check : positions) {
-            if (isPositionCapturable(board,position_to_check)) {
-                set.add(new ChessMove(position,position_to_check,null));
+        for (var positionToCheck : positions) {
+            if (isPositionCapturable(board,positionToCheck)) {
+                set.add(new ChessMove(position,positionToCheck,null));
             }
         }
 
         return set;
     }
 
-    private Collection<ChessMove> getLineMoves(ChessBoard board, ChessPosition position, int x_step, int y_step) {
+    private Collection<ChessMove> getLineMoves(ChessBoard board, ChessPosition position, int xStep, int yStep) {
         var set = new HashSet<ChessMove>();
 
-        var position_to_check = position;
+        var positionToCheck = position;
         for (int i = 1; i <= 8; i ++) {
 
-            if (isPositionCapturable(board,position_to_check)) {
-                set.add(new ChessMove(position,position_to_check,null));
+            if (isPositionCapturable(board,positionToCheck)) {
+                set.add(new ChessMove(position,positionToCheck,null));
             }
 
-            if (isPositionEmpty(board,position_to_check) || position.equals(position_to_check)) {
-                position_to_check = position.shift(i * x_step,i * y_step);
+            if (isPositionEmpty(board,positionToCheck) || position.equals(positionToCheck)) {
+                positionToCheck = position.shift(i * xStep,i * yStep);
             } else {
                 break;
             }
@@ -189,9 +189,9 @@ public class ChessPiece {
                 position.shift(-1,2)
         };
 
-        for (var position_to_check : positions) {
-            if (isPositionCapturable(board,position_to_check)) {
-                set.add(new ChessMove(position,position_to_check,null));
+        for (var positionToCheck : positions) {
+            if (isPositionCapturable(board,positionToCheck)) {
+                set.add(new ChessMove(position,positionToCheck,null));
             }
         }
 
@@ -207,28 +207,28 @@ public class ChessPiece {
 
         PieceType[] promos = { null };
 
-        int row_polarity = color == ChessGame.TeamColor.WHITE ? 1 : -1;
-        boolean in_starting_row = (position.getRow() == 2 && row_polarity == 1) || (position.getRow() == 7 && row_polarity == -1);
+        int rowPolarity = color == ChessGame.TeamColor.WHITE ? 1 : -1;
+        boolean inStartingRow = (position.getRow() == 2 && rowPolarity == 1) || (position.getRow() == 7 && rowPolarity == -1);
 
-        if ((position.getRow() == 7 && row_polarity == 1) || (position.getRow() == 2 && row_polarity == -1)) {
+        if ((position.getRow() == 7 && rowPolarity == 1) || (position.getRow() == 2 && rowPolarity == -1)) {
             promos = new PieceType[]{ PieceType.BISHOP, PieceType.QUEEN, PieceType.ROOK, PieceType.KNIGHT };
         }
 
         for (var promo : promos) {
-            if (isPositionKillable(board,position.shift(row_polarity,-1))) {
-                set.add(new ChessMove(position,position.shift(row_polarity,-1),promo));
+            if (isPositionKillable(board,position.shift(rowPolarity,-1))) {
+                set.add(new ChessMove(position,position.shift(rowPolarity,-1),promo));
             }
 
-            if (isPositionEmpty(board,position.shift(row_polarity,0))) {
-                set.add(new ChessMove(position,position.shift(row_polarity,0),promo));
+            if (isPositionEmpty(board,position.shift(rowPolarity,0))) {
+                set.add(new ChessMove(position,position.shift(rowPolarity,0),promo));
 
-                if (isPositionEmpty(board,position.shift(row_polarity*2,0)) && in_starting_row) {
-                    set.add(new ChessMove(position,position.shift(row_polarity*2,0),promo));
+                if (isPositionEmpty(board,position.shift(rowPolarity*2,0)) && inStartingRow) {
+                    set.add(new ChessMove(position,position.shift(rowPolarity*2,0),promo));
                 }
             }
 
-            if (isPositionKillable(board,position.shift(row_polarity,1))) {
-                set.add(new ChessMove(position,position.shift(row_polarity,1),promo));
+            if (isPositionKillable(board,position.shift(rowPolarity,1))) {
+                set.add(new ChessMove(position,position.shift(rowPolarity,1),promo));
             }
         }
 

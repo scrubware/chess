@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Objects;
-import java.lang.Math;
 
 /**
  * Represents a single square position on a chess board
@@ -55,8 +54,9 @@ public class ChessPosition {
     }
 
     public ChessPosition shift(int r, int c) {
-        if (row + r > 8 || row + r < 1) return null;
-        if (col + c > 8 || col + c < 1) return null;
+        if (row + r > 8 || row + r < 1 || col + c > 8 || col + c < 1) {
+            return null;
+        }
         return new ChessPosition(row + r,col + c);
     }
 }

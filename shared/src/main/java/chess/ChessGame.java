@@ -101,6 +101,11 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         var piece = board.getPiece(move.startPosition);
+
+        if (!validMoves(move.startPosition).contains(move)) {
+            throw new InvalidMoveException();
+        }
+
         board.addPiece(move.startPosition, null);
         board.addPiece(move.endPosition, piece);
     }

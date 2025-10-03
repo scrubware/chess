@@ -14,6 +14,15 @@ public class ChessBoard {
 
     public ChessBoard() {}
 
+    public ChessBoard(ChessBoard board) {
+        for (int row = 1; row <= 8; row ++) {
+            for (int col = 1; col <= 8; col ++) {
+                var position = new ChessPosition(row,col);
+                this.addPiece(position,new ChessPiece(board.getPiece(position)));
+            }
+        }
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *

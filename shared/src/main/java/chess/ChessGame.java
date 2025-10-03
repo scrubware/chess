@@ -63,6 +63,18 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
+    private ChessPosition getKingPosition(TeamColor teamColor) {
+        for (int row = 1; row <= 8; row ++) {
+            for (int col = 1; col <= 8; col ++) {
+                var piece = board.getPiece(new ChessPosition(row,col));
+                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return new ChessPosition(row,col);
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -70,7 +82,53 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        var king_position = getKingPosition(teamColor);
+
+        if (king_position == null) return false;
+
+        System.out.println(king_position);
+
+        for (int row = 1; row <= 8; row ++) {
+            for (int col = 1; col <= 8; col ++) {
+                var this_position = new ChessPosition(row,col);
+                var piece = board.getPiece(this_position);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    var moves = piece.pieceMoves(board, this_position);
+                    for (var move : moves) {
+                        if (move.endPosition.equals(king_position)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if the given team has any moves that would get them out of check.
+     * (Regardless of whether they're in check).
+     *
+     * @param teamColor which team to check for check
+     * @return True if the specified team is in check
+     */
+    private boolean hasValidMoves(TeamColor teamColor) {
+        for (int row = 1; row <= 8; row ++) {
+            for (int col = 1; col <= 8; col ++) {
+                var position = new ChessPosition(row,col);
+                var piece = board.getPiece(position);
+                var moves = piece.pieceMoves(board,position);
+
+                for (var move : moves) {
+
+                    var hypothetical = new ChessBoard(board);
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

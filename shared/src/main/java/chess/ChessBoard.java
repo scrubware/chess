@@ -18,7 +18,10 @@ public class ChessBoard {
         for (int row = 1; row <= 8; row ++) {
             for (int col = 1; col <= 8; col ++) {
                 var position = new ChessPosition(row,col);
-                this.addPiece(position,new ChessPiece(board.getPiece(position)));
+                var piece = board.getPiece(position);
+                if (piece != null) {
+                    this.addPiece(position,new ChessPiece(piece));
+                }
             }
         }
     }

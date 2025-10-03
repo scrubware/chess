@@ -106,6 +106,10 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
+        if (current_team != piece.getTeamColor()) {
+            throw new InvalidMoveException();
+        }
+
         board.addPiece(move.startPosition, null);
         board.addPiece(move.endPosition, piece);
     }

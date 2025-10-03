@@ -110,8 +110,16 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
+        // Remove piece from old position
         board.addPiece(move.startPosition, null);
-        board.addPiece(move.endPosition, piece);
+
+        // Promote if needed
+        if (move.promotionPiece != null) {
+            board.addPiece(move.endPosition,new ChessPiece(piece.getTeamColor(),move.promotionPiece));
+        } else {
+            board.addPiece(move.endPosition, piece);
+        }
+
 
         // Change Polarity (ternary)
         current_team = current_team == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;

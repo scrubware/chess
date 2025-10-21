@@ -1,15 +1,22 @@
 package handlers;
 
+import com.google.gson.Gson;
 import io.javalin.http.Context;
+
+import model.UserData;
+import service.UserService;
+import requests.RegisterRequest;
+import results.RegisterResult;
+
 
 public class UserHandler {
 
-    public UserHandler() {
-
-    }
+    private final Gson gson = new Gson();
+    private final UserService userService = new UserService();
 
     public void handleRegister(Context ctx) {
-
+        UserData user = gson.fromJson(ctx.body(), UserData.class);
+        RegisterResult result = userService.register(new RegisterRequest(user.username, password, email));
     }
 
     public void handleLogin(Context ctx) {

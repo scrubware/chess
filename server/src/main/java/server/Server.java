@@ -22,8 +22,6 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        // Register your endpoints and exception handlers here.
-
         var authDAO = new MemoryAuthDAO();
         var gameDAO = new MemoryGameDAO();
         var userDAO = new MemoryUserDAO();
@@ -50,13 +48,17 @@ public class Server {
         exceptionCodes.put(UsernameAlreadyTakenException.class,403);
         exceptionCodes.put(InvalidGameIDException.class,500);
 
-        // Handle those exceptions and send out the corresponding status code & error message.
+        // Handle those exceptions and send out the corresponding status code & error message
         exceptionCodes.forEach((k, v) -> {
             javalin.exception(k, (e, ctx) -> {
-                ctx.status(v).json(Map.of("message", "Error: " + e.getMessage()));
+                ctx.status(v).result("{\"message\":\"Error: " + e.getMessage() + "\"}");
             });
         });
 
+        // Handle any unhandled exceptions and return 500
+        javalin.exception(Exception.class, (e, ctx) -> {
+            ctx.status(500).result("{\"message\":\"Error: internal server issue\"}");
+        });
     }
 
     public int run(int desiredPort) {

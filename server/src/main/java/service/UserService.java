@@ -23,18 +23,9 @@ public class UserService
 
     public AuthData register(UserData userData) throws UsernameAlreadyTakenException {
         UserData user = userDAO.getUser(userData.username());
-        System.out.println("yello");
-        System.out.println(user);
-        if (user != null) {
-            System.out.println("yup");
-            System.out.println(user);
-            throw new UsernameAlreadyTakenException();
-        }
+        if (user != null) throw new UsernameAlreadyTakenException();
         userDAO.createUser(userData);
-
-        var authData = authDAO.createAuth(userData.username());
-        System.out.println(authData);
-        return authData;
+        return authDAO.createAuth(userData.username());
     }
 
     public AuthData login(LoginRequest loginRequest) throws UserNotRegisteredException, PasswordIncorrectException {
@@ -44,8 +35,8 @@ public class UserService
         return authDAO.createAuth(loginRequest.username());
     }
 
-    public void logout(LogoutRequest logoutRequest) throws InvalidAuthTokenException {
-        if (!authDAO.authExists(logoutRequest.authToken())) throw new InvalidAuthTokenException();
-        authDAO.deleteAuth(logoutRequest.authToken());
+    public void logout(String authToken) throws InvalidAuthTokenException {
+        if (!authDAO.authExists(authToken)) throw new InvalidAuthTokenException();
+        authDAO.deleteAuth(authToken);
     }
 }

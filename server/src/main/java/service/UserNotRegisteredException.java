@@ -1,7 +1,7 @@
 package service;
 
 public class UserNotRegisteredException extends RuntimeException {
-    public UserNotRegisteredException(String message) {
-        super(message);
+    public UserNotRegisteredException() {
+        super("Error: unauthorized");
     }
 }

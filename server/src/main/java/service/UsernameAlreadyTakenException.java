@@ -1,7 +1,7 @@
 package service;
 
 public class UsernameAlreadyTakenException extends RuntimeException {
-    public UsernameAlreadyTakenException(String message) {
-        super(message);
+    public UsernameAlreadyTakenException() {
+        super("Error: username already taken");
     }
 }

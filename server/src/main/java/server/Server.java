@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.MemoryAdminDAO;
+import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import io.javalin.*;
@@ -19,13 +20,14 @@ public class Server {
         // Register your endpoints and exception handlers here.
 
         var adminDAO = new MemoryAdminDAO();
+        var authDAO = new MemoryAuthDAO();
         var gameDAO = new MemoryGameDAO();
         var userDAO = new MemoryUserDAO();
 
         var adminHandler = new AdminHandler(adminDAO);
         javalin.delete("/db",adminHandler::handleClear);
 
-        var userHandler = new UserHandler(userDAO);
+        var userHandler = new UserHandler(authDAO, userDAO);
         javalin.post("/user",userHandler::handleRegister);
         javalin.post("/session",userHandler::handleLogin);
         javalin.delete("/session",userHandler::handleLogout);

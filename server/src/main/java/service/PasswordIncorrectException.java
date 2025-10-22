@@ -1,7 +1,7 @@
 package service;
 
 public class PasswordIncorrectException extends RuntimeException {
-    public PasswordIncorrectException(String message) {
-        super(message);
+    public PasswordIncorrectException() {
+        super("Error: unauthorized");
     }
 }

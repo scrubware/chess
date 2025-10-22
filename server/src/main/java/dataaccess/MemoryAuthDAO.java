@@ -3,7 +3,6 @@ package dataaccess;
 import model.AuthData;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
 
 public class MemoryAuthDAO implements AuthDAO {
@@ -11,8 +10,8 @@ public class MemoryAuthDAO implements AuthDAO {
     HashSet<AuthData> auths;
 
     @Override
-    public void createAuth(AuthData authData) {
-        auths.add(authData);
+    public AuthData createAuth(String username) {
+        auths.add();
     }
 
     @Override

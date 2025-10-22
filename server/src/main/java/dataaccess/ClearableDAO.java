@@ -1,5 +1,5 @@
 package dataaccess;
 
-public interface AdminDAO {
+public interface ClearableDAO {
     void clear();
 }

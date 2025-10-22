@@ -21,6 +21,9 @@ public class UserHandler {
     public void handleRegister(Context ctx) {
         UserData userData = gson.fromJson(ctx.body(), UserData.class);
         AuthData authData = userService.register(userData);
+
+        ctx.status(200);
+        ctx.result(gson.toJson(authData));
     }
 
     public void handleLogin(Context ctx) {

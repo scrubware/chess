@@ -6,9 +6,6 @@ import model.AuthData;
 import model.UserData;
 import requests.LoginRequest;
 import requests.LogoutRequest;
-import requests.RegisterRequest;
-import results.LoginResult;
-import results.RegisterResult;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -26,9 +23,18 @@ public class UserService
 
     public AuthData register(UserData userData) throws UsernameAlreadyTakenException {
         UserData user = userDAO.getUser(userData.username());
-        if (user != null) throw new UsernameAlreadyTakenException();
+        System.out.println("yello");
+        System.out.println(user);
+        if (user != null) {
+            System.out.println("yup");
+            System.out.println(user);
+            throw new UsernameAlreadyTakenException();
+        }
         userDAO.createUser(userData);
-        return authDAO.createAuth(userData.username());
+
+        var authData = authDAO.createAuth(userData.username());
+        System.out.println(authData);
+        return authData;
     }
 
     public AuthData login(LoginRequest loginRequest) throws UserNotRegisteredException, PasswordIncorrectException {

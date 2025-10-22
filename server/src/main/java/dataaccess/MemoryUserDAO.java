@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class MemoryUserDAO implements UserDAO {
 
-    HashSet<UserData> users;
+    HashSet<UserData> users = new HashSet<>();
 
     @Override
     public UserData getUser(String username) {
@@ -23,5 +23,10 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public void createUser(UserData userData) {
         users.add(userData);
+    }
+
+    @Override
+    public void clear() {
+        users.clear();
     }
 }

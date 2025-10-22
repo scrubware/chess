@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
-public interface AuthDAO {
+public interface AuthDAO extends ClearableDAO {
 
     AuthData createAuth(String username);
     boolean authExists(String authToken);

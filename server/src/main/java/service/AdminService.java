@@ -1,14 +1,27 @@
 package service;
 
 
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
 import requests.ClearRequest;
 import results.ClearResult;
 
 public class AdminService {
-    public ClearResult clear(ClearRequest clearRequest) {
 
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final UserDAO userDAO;
 
+    public AdminService(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+        this.userDAO = userDAO;
+    }
 
-        return new ClearResult();
+    public void clear(ClearRequest clearRequest) {
+        authDAO.clear();
+        gameDAO.clear();
+        userDAO.clear();
     }
 }

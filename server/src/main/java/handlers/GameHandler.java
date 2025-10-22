@@ -1,17 +1,18 @@
 package handlers;
 
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import io.javalin.http.Context;
+
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+
+import service.GameService;
 
 public class GameHandler {
 
-    private UserDAO userDAO;
-    private GameDAO gameDAO;
+    private final GameService gameService;
 
-    public GameHandler(UserDAO userDAO, GameDAO gameDAO) {
-        this.userDAO = userDAO;
-        this.gameDAO = gameDAO;
+    public GameHandler(AuthDAO authDAO, GameDAO gameDAO) {
+        this.gameService = new GameService(authDAO,gameDAO);
     }
 
     public void handleListGames(Context ctx) {

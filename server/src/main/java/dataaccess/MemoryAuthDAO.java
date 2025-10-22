@@ -4,20 +4,24 @@ import model.AuthData;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
 
-    HashSet<AuthData> auths;
+    HashSet<AuthData> auths = new HashSet<>();
 
     @Override
     public AuthData createAuth(String username) {
-        auths.add();
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken,username);
+        auths.add(authData);
+        return authData;
     }
 
     @Override
-    public boolean authExists(AuthData authData) {
+    public boolean authExists(String authToken) {
         for (var auth : auths) {
-            if (Objects.equals(auth.authToken(), authData.authToken())) {
+            if (Objects.equals(auth.authToken(), authToken)) {
                 return true;
             }
         }
@@ -25,7 +29,12 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(AuthData authData) {
-        auths.removeIf(auth -> Objects.equals(auth.authToken(), authData.authToken()));
+    public void deleteAuth(String authToken) {
+        auths.removeIf(auth -> Objects.equals(auth.authToken(), authToken));
+    }
+
+    @Override
+    public void clear() {
+        auths.clear();
     }
 }

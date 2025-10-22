@@ -4,8 +4,8 @@ import model.GameData;
 import java.util.Collection;
 
 public interface GameDAO extends ClearableDAO {
-    GameData getGame(GameData gameData);
+    GameData getGame(int game_id);
     void updateGame(GameData gameData);
-    GameData createGame(GameData gameData);
+    int createGame(String name);
     Collection<GameData> listGames();
 }

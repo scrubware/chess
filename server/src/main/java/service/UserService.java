@@ -5,7 +5,6 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import requests.LoginRequest;
-import requests.LogoutRequest;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -21,9 +20,9 @@ public class UserService
         this.userDAO = userDAO;
     }
 
-    public AuthData register(UserData userData) throws UsernameAlreadyTakenException {
+    public AuthData register(UserData userData) throws AlreadyTakenException {
         UserData user = userDAO.getUser(userData.username());
-        if (user != null) throw new UsernameAlreadyTakenException();
+        if (user != null) throw new AlreadyTakenException();
         userDAO.createUser(userData);
         return authDAO.createAuth(userData.username());
     }

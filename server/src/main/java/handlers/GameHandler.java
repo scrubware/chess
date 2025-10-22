@@ -1,6 +1,9 @@
 package handlers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import dataaccess.UserDAO;
 import io.javalin.http.Context;
 
 import dataaccess.AuthDAO;
@@ -31,11 +34,11 @@ public class GameHandler {
 
     public void handleCreateGame(Context ctx) {
         String authToken = ctx.header("authorization");
-        String name = gson.fromJson(ctx.body(), String.class);
+        JsonElement name = gson.fromJson(ctx.body(), JsonObject.class).get("gameName");
 
         if (authToken == null || name == null) throw new BadRequestException();
 
-        int game_id = gameService.createGame(authToken,name);
+        int game_id = gameService.createGame(authToken,name.getAsString());
 
         ctx.status(200);
         ctx.result("{\"gameID\": " + game_id + "}");
@@ -43,6 +46,11 @@ public class GameHandler {
 
     public void handleJoinGame(Context ctx) {
         String authToken = ctx.header("authorization");
-        if (authToken == null) throw new BadRequestException();
+        JsonElement gameID = gson.fromJson(ctx.body(), JsonObject.class).get("gameID");
+        JsonElement playerColor = gson.fromJson(ctx.body(), JsonObject.class).get("playerColor");
+
+        if (authToken == null || gameID == null || playerColor == null) throw new BadRequestException();
+
+        gameService.joinGame(authToken, playerColor.getAsString(), gameID.getAsInt());
     }
 }

@@ -11,6 +11,16 @@ public class MemoryAuthDAO implements AuthDAO {
     HashSet<AuthData> auths = new HashSet<>();
 
     @Override
+    public String getUsername(String authToken) {
+        for (var auth : auths) {
+            if (Objects.equals(auth.authToken(), authToken)) {
+                return auth.username();
+            }
+        }
+        return null;
+    }
+
+    @Override
     public AuthData createAuth(String username) {
         String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken,username);

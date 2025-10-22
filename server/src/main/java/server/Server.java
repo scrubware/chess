@@ -13,7 +13,6 @@ import handlers.GameHandler;
 import service.*;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class Server {
 
@@ -45,7 +44,7 @@ public class Server {
         exceptionCodes.put(InvalidAuthTokenException.class,401);
         exceptionCodes.put(UserNotRegisteredException.class,401);
         exceptionCodes.put(PasswordIncorrectException.class,401);
-        exceptionCodes.put(UsernameAlreadyTakenException.class,403);
+        exceptionCodes.put(AlreadyTakenException.class,403);
         exceptionCodes.put(InvalidGameIDException.class,500);
 
         // Handle those exceptions and send out the corresponding status code & error message

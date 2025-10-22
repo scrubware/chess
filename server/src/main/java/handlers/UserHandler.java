@@ -1,6 +1,7 @@
 package handlers;
 
 import com.google.gson.Gson;
+import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import io.javalin.http.Context;
 
@@ -12,18 +13,21 @@ import results.RegisterResult;
 
 public class UserHandler {
 
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     private final Gson gson = new Gson();
-    private final UserService userService = new UserService();
+    private final UserService userService;
 
-    public UserHandler(UserDAO userDAO) {
+    public UserHandler(AuthDAO authDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
         this.userDAO = userDAO;
+        this.userService = new UserService(userDAO);
     }
 
     public void handleRegister(Context ctx) {
-        UserData user = gson.fromJson(ctx.body(), UserData.class);
-        RegisterResult result = userService.register(new RegisterRequest(user.username(), user.password(), user.email()));
+        UserData userData = gson.fromJson(ctx.body(), UserData.class);
+        RegisterResult result = userService.register(userData);
     }
 
     public void handleLogin(Context ctx) {

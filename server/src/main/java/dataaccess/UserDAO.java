@@ -6,5 +6,5 @@ import model.UserData;
 public interface UserDAO {
 
     UserData getUser(String username);
-    AuthData authIsValid(AuthData authData);
+    void createUser(UserData userData);
 }

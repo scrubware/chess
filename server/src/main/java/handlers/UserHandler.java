@@ -23,7 +23,7 @@ public class UserHandler {
 
     public void handleRegister(Context ctx) {
         UserData user = gson.fromJson(ctx.body(), UserData.class);
-        RegisterResult result = userService.register(new RegisterRequest(user.username, password, email));
+        RegisterResult result = userService.register(new RegisterRequest(user.username(), user.password(), user.email()));
     }
 
     public void handleLogin(Context ctx) {

@@ -13,8 +13,6 @@ import results.ListGamesResult;
 import service.BadRequestException;
 import service.GameService;
 
-import java.util.Objects;
-
 public class GameHandler {
 
     private final Gson gson = new Gson();
@@ -46,10 +44,10 @@ public class GameHandler {
             throw new BadRequestException();
         }
 
-        int game_id = gameService.createGame(authToken,name.getAsString());
+        int gameID = gameService.createGame(authToken,name.getAsString());
 
         ctx.status(200);
-        ctx.result("{\"gameID\": " + game_id + "}");
+        ctx.result("{\"gameID\": " + gameID + "}");
     }
 
     public void handleJoinGame(Context ctx) {

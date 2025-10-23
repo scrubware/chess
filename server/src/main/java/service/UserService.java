@@ -22,20 +22,28 @@ public class UserService
 
     public AuthData register(UserData userData) throws AlreadyTakenException {
         UserData user = userDAO.getUser(userData.username());
-        if (user != null) throw new AlreadyTakenException();
+        if (user != null) {
+            throw new AlreadyTakenException();
+        }
         userDAO.createUser(userData);
         return authDAO.createAuth(userData.username());
     }
 
     public AuthData login(LoginRequest loginRequest) throws UserNotRegisteredException, PasswordIncorrectException {
         UserData user = userDAO.getUser(loginRequest.username());
-        if (user == null) throw new UserNotRegisteredException();
-        if (!Objects.equals(loginRequest.password(), user.password())) throw new PasswordIncorrectException();
+        if (user == null) {
+            throw new UserNotRegisteredException();
+        }
+        if (!Objects.equals(loginRequest.password(), user.password())) {
+            throw new PasswordIncorrectException();
+        }
         return authDAO.createAuth(loginRequest.username());
     }
 
     public void logout(String authToken) throws InvalidAuthTokenException {
-        if (!authDAO.authExists(authToken)) throw new InvalidAuthTokenException();
+        if (!authDAO.authExists(authToken)) {
+            throw new InvalidAuthTokenException();
+        }
         authDAO.deleteAuth(authToken);
     }
 }

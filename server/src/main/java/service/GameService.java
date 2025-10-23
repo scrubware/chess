@@ -19,17 +19,23 @@ public class GameService {
     }
 
     public ListGamesResult listGames(String authToken) {
-        if (!authDAO.authExists(authToken)) throw new InvalidAuthTokenException();
+        if (!authDAO.authExists(authToken)) {
+            throw new InvalidAuthTokenException();
+        }
         return new ListGamesResult(gameDAO.listGames());
     }
 
     public int createGame(String authToken, String name) {
-        if (!authDAO.authExists(authToken)) throw new InvalidAuthTokenException();
+        if (!authDAO.authExists(authToken)) {
+            throw new InvalidAuthTokenException();
+        }
         return gameDAO.createGame(name);
     }
 
     public void joinGame(String authToken, String playerColor, int gameID) {
-        if (!authDAO.authExists(authToken)) throw new InvalidAuthTokenException();
+        if (!authDAO.authExists(authToken)) {
+            throw new InvalidAuthTokenException();
+        }
 
         if (!(Objects.equals(playerColor, "WHITE") || Objects.equals(playerColor, "BLACK"))) {
             throw new BadRequestException();

@@ -26,7 +26,9 @@ public class GameHandler {
 
     public void handleListGames(Context ctx) {
         String authToken = ctx.header("authorization");
-        if (authToken == null) throw new BadRequestException();
+        if (authToken == null) {
+            throw new BadRequestException();
+        }
 
         ListGamesResult games = gameService.listGames(authToken);
 
@@ -40,7 +42,9 @@ public class GameHandler {
         String authToken = ctx.header("authorization");
         JsonElement name = gson.fromJson(ctx.body(), JsonObject.class).get("gameName");
 
-        if (authToken == null || name == null) throw new BadRequestException();
+        if (authToken == null || name == null) {
+            throw new BadRequestException();
+        }
 
         int game_id = gameService.createGame(authToken,name.getAsString());
 
@@ -53,7 +57,9 @@ public class GameHandler {
         JsonElement gameID = gson.fromJson(ctx.body(), JsonObject.class).get("gameID");
         JsonElement playerColor = gson.fromJson(ctx.body(), JsonObject.class).get("playerColor");
 
-        if (authToken == null || gameID == null || playerColor == null) throw new BadRequestException();
+        if (authToken == null || gameID == null || playerColor == null) {
+            throw new BadRequestException();
+        }
 
         String stringColor = playerColor.getAsString();
 

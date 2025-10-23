@@ -51,7 +51,9 @@ public class UserHandler {
 
     public void handleLogout(Context ctx) {
         String authToken = ctx.header("authorization");
-        if (authToken == null) throw new BadRequestException();
+        if (authToken == null) {
+            throw new BadRequestException();
+        }
 
         userService.logout(authToken);
 

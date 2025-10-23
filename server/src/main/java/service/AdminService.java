@@ -19,7 +19,7 @@ public class AdminService {
         this.userDAO = userDAO;
     }
 
-    public void clear(ClearRequest clearRequest) {
+    public void clear() {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();

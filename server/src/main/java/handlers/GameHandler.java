@@ -57,10 +57,6 @@ public class GameHandler {
 
         String stringColor = playerColor.getAsString();
 
-        if (!(Objects.equals(stringColor, "WHITE") || Objects.equals(stringColor, "BLACK"))) {
-            throw new BadRequestException();
-        }
-
         gameService.joinGame(authToken, stringColor, gameID.getAsInt());
     }
 }

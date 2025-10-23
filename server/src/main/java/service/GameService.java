@@ -31,6 +31,10 @@ public class GameService {
     public void joinGame(String authToken, String playerColor, int gameID) {
         if (!authDAO.authExists(authToken)) throw new InvalidAuthTokenException();
 
+        if (!(Objects.equals(playerColor, "WHITE") || Objects.equals(playerColor, "BLACK"))) {
+            throw new BadRequestException();
+        }
+
         GameData game = gameDAO.getGame(gameID);
 
         boolean white = Objects.equals(playerColor, "WHITE");

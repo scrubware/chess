@@ -19,7 +19,7 @@ public class AdminHandler {
     }
 
     public void handleClear(Context ctx) {
-        adminService.clear(new ClearRequest());
+        adminService.clear();
         ctx.status(200);
     }
 }

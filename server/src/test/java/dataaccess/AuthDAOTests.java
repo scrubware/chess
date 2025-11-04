@@ -25,8 +25,7 @@ public class AuthDAOTests {
     @DisplayName("Create Auth Negative")
     public void createAuthNegative() {
         var authDAO = new DatabaseAuthDAO();
-        authDAO.createAuth("username");
-        Assertions.assertNull(authDAO.createAuth("username"));
+        Assertions.assertNull(authDAO.createAuth(null));
     }
 
     @Test

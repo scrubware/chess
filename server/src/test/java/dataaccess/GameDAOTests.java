@@ -14,48 +14,33 @@ public class GameDAOTests {
     @BeforeEach
     public void clearBefore() {
         var clearDAO = new DatabaseClearDAO();
-
-        try {
-            clearDAO.clear();
-        } catch(Exception _) {}
+        Assertions.assertDoesNotThrow(clearDAO::clear);
     }
 
     @Test
     @DisplayName("Get Game")
-    public void getGame() {
+    public void getGame() throws DataAccessException {
         var gameDAO = new DatabaseGameDAO();
         var emptyGame = new GameData(1,null, null, "game", new ChessGame());
         int id = gameDAO.createGame("game");
-        try {
-            Assertions.assertEquals(emptyGame,gameDAO.getGame(id));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        Assertions.assertEquals(emptyGame,gameDAO.getGame(id));
     }
 
     @Test
     @DisplayName("Get Game Negative")
-    public void getGameNegative() {
+    public void getGameNegative() throws DataAccessException {
         var gameDAO = new DatabaseGameDAO();
-        try {
-            Assertions.assertNull(gameDAO.getGame(0));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        Assertions.assertNull(gameDAO.getGame(0));
     }
 
     @Test
     @DisplayName("Update Game")
-    public void updateGame() {
+    public void updateGame() throws DataAccessException {
         var gameDAO = new DatabaseGameDAO();
         var updatedGame = new GameData(1,"changed", null, "game", new ChessGame());
         int id = gameDAO.createGame("game");
         Assertions.assertTrue(gameDAO.updateGame(id,updatedGame));
-        try {
-            Assertions.assertEquals(updatedGame,gameDAO.getGame(id));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        Assertions.assertEquals(updatedGame,gameDAO.getGame(id));
     }
 
     @Test

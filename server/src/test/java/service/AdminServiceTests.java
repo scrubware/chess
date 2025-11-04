@@ -17,10 +17,7 @@ public class AdminServiceTests {
     @BeforeEach
     public void clearBefore() {
         var clearDAO = new DatabaseClearDAO();
-
-        try {
-            clearDAO.clear();
-        } catch(Exception _) {}
+        Assertions.assertDoesNotThrow(clearDAO::clear);
     }
 
     @Test

@@ -24,8 +24,9 @@ public class DatabaseUserDAO implements UserDAO {
 
                     return new UserData(username, password, email);
                 }
+            } catch (Exception e) {
+                return null;
             }
-
         } catch (Exception e) {
             throw new DataAccessException();
         }

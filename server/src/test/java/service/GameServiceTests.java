@@ -13,10 +13,7 @@ public class GameServiceTests {
     @BeforeEach
     public void clearBefore() {
         var clearDAO = new DatabaseClearDAO();
-
-        try {
-            clearDAO.clear();
-        } catch(Exception _) {}
+        Assertions.assertDoesNotThrow(clearDAO::clear);
     }
 
     @Test
@@ -47,7 +44,7 @@ public class GameServiceTests {
 
     @Test
     @DisplayName("Join Game Valid")
-    public void joinGame() {
+    public void joinGame() throws DataAccessException {
 
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
@@ -56,21 +53,16 @@ public class GameServiceTests {
         var userService = new UserService(authDAO, userDAO);
         var gameService = new GameService(authDAO, gameDAO);
 
-        try {
-            var authData = userService.register(new UserData("username","password","email"));
+        var authData = userService.register(new UserData("username","password","email"));
 
-            var gameID = gameService.createGame(authData.authToken(),"game");
+        var gameID = gameService.createGame(authData.authToken(),"game");
 
-            Assertions.assertDoesNotThrow(() -> gameService.joinGame(authData.authToken(),"WHITE",gameID));
-        } catch (Exception _) {
-            Assertions.fail();
-        }
-
+        Assertions.assertDoesNotThrow(() -> gameService.joinGame(authData.authToken(),"WHITE",gameID));
     }
 
     @Test
     @DisplayName("Join Game Invalid")
-    public void joinGameBad() {
+    public void joinGameBad() throws DataAccessException {
 
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
@@ -79,18 +71,14 @@ public class GameServiceTests {
         var userService = new UserService(authDAO, userDAO);
         var gameService = new GameService(authDAO, gameDAO);
 
-        try {
-            var authData = userService.register(new UserData("username","password","email"));
-            var gameID = gameService.createGame(authData.authToken(),"game");
-            Assertions.assertThrows(BadRequestException.class,() -> gameService.joinGame(authData.authToken(),"GREEBLE-DORP",gameID));
-        } catch (Exception _) {
-            Assertions.fail();
-        }
+        var authData = userService.register(new UserData("username","password","email"));
+        var gameID = gameService.createGame(authData.authToken(),"game");
+        Assertions.assertThrows(BadRequestException.class,() -> gameService.joinGame(authData.authToken(),"GREEBLE-DORP",gameID));
     }
 
     @Test
     @DisplayName("List Games")
-    public void listGames() {
+    public void listGames() throws DataAccessException {
 
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
@@ -99,25 +87,21 @@ public class GameServiceTests {
         var gameService = new GameService(authDAO,gameDAO);
         var userService = new UserService(authDAO,userDAO);
 
-        try {
-            var userData = new UserData("username", "password", "mail@mail.com");
-            var authData = userService.register(userData);
+        var userData = new UserData("username", "password", "mail@mail.com");
+        var authData = userService.register(userData);
 
-            gameService.createGame(authData.authToken(), "game");
+        gameService.createGame(authData.authToken(), "game");
 
-            Assertions.assertEquals(1, gameService.listGames(authData.authToken()).games().size());
+        Assertions.assertEquals(1, gameService.listGames(authData.authToken()).games().size());
 
-            gameService.createGame(authData.authToken(), "game2");
+        gameService.createGame(authData.authToken(), "game2");
 
-            Assertions.assertEquals(2, gameService.listGames(authData.authToken()).games().size());
-        } catch (Exception _) {
-            Assertions.fail();
-        }
+        Assertions.assertEquals(2, gameService.listGames(authData.authToken()).games().size());
     }
 
     @Test
     @DisplayName("List Games")
-    public void listGamesBad() {
+    public void listGamesBad() throws DataAccessException {
 
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
@@ -126,14 +110,10 @@ public class GameServiceTests {
         var gameService = new GameService(authDAO,gameDAO);
         var userService = new UserService(authDAO,userDAO);
 
-        try {
-            var userData = new UserData("username","password","mail@mail.com");
-            var authData = userService.register(userData);
-            gameService.createGame(authData.authToken(),"game");
-            Assertions.assertThrows(InvalidAuthTokenException.class, () -> gameService.listGames(null));
-        } catch (Exception _) {
-            Assertions.fail();
-        }
+        var userData = new UserData("username","password","mail@mail.com");
+        var authData = userService.register(userData);
+        gameService.createGame(authData.authToken(),"game");
+        Assertions.assertThrows(InvalidAuthTokenException.class, () -> gameService.listGames(null));
     }
 
 

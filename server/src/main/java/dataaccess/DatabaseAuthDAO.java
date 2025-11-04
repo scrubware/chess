@@ -39,6 +39,8 @@ public class DatabaseAuthDAO implements AuthDAO {
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1,authData.username());
                 statement.setString(2,authData.authToken());
+
+
                 statement.executeUpdate();
 
                 return authData;
@@ -87,7 +89,7 @@ public class DatabaseAuthDAO implements AuthDAO {
         }
     }
 
-    private void createAuthTable(Connection connection) throws SQLException {
+    private void createAuthTable(Connection connection) throws SQLException, DataAccessException {
         var authTable = """
         CREATE TABLE IF NOT EXISTS auth (
             username VARCHAR(255) NOT NULL,
@@ -97,5 +99,8 @@ public class DatabaseAuthDAO implements AuthDAO {
 
         var tableStatement = connection.prepareStatement(authTable);
         tableStatement.executeUpdate();
+
+        DatabaseManager.createDatabase();
+        DatabaseManager.setCatalog();
     }
 }

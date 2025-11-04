@@ -2,11 +2,10 @@ package dataaccess;
 
 public class DatabaseClearDAO implements ClearDAO {
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() {
         try {
             DatabaseManager.dropDatabase();
         } catch (Exception _) {
-            throw new DataAccessException("clear failed");
         }
     }
 }

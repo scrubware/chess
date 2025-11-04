@@ -29,6 +29,24 @@ public class DatabaseManager {
         }
     }
 
+    static public void dropDatabase() throws DataAccessException {
+        var statement = "DROP DATABASE " + databaseName;
+        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
+             var preparedStatement = conn.prepareStatement(statement)) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException("failed to drop database", ex);
+        }
+    }
+
+    static public void setCatalog() throws DataAccessException {
+        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword)) {
+             conn.setCatalog(databaseName);
+        } catch (SQLException ex) {
+            throw new DataAccessException("failed to create database", ex);
+        }
+    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should

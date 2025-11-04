@@ -1,10 +1,7 @@
 package server;
 
+import dataaccess.*;
 import io.javalin.*;
-
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
 
 import handlers.AdminHandler;
 import handlers.UserHandler;
@@ -21,11 +18,19 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        var authDAO = new MemoryAuthDAO();
-        var gameDAO = new MemoryGameDAO();
-        var userDAO = new MemoryUserDAO();
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException _) {
 
-        var adminHandler = new AdminHandler(authDAO,gameDAO,userDAO);
+        }
+
+
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
+        var clearDAO = new DatabaseClearDAO();
+
+        var adminHandler = new AdminHandler(clearDAO);
         javalin.delete("/db",adminHandler::handleClear);
 
         var userHandler = new UserHandler(authDAO, userDAO);

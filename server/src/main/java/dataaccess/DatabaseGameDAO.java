@@ -25,9 +25,4 @@ public class DatabaseGameDAO implements GameDAO {
     public Collection<GameData> listGames() {
         return List.of();
     }
-
-    @Override
-    public void clear() {
-
-    }
 }

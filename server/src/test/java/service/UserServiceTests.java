@@ -3,6 +3,7 @@ package service;
 
 import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,12 @@ import model.UserData;
 
 
 public class UserServiceTests {
+
+    @BeforeEach
+    public void clear() {
+        var clearDAO = new DatabaseClearDAO();
+        clearDAO.clear();
+    }
 
     @Test
     @DisplayName("Valid Register")

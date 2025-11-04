@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -43,7 +44,7 @@ public class DatabaseUserDAO implements UserDAO {
 
             try (var userStatement = conn.prepareStatement(createUser)) {
                 userStatement.setString(1,userData.username());
-                userStatement.setString(2,userData.password());
+                userStatement.setString(2,BCrypt.hashpw(userData.password(), BCrypt.gensalt()));
                 userStatement.setString(3,userData.email());
                 userStatement.executeUpdate();
 

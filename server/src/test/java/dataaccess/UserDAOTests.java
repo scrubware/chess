@@ -40,7 +40,7 @@ public class UserDAOTests {
         var userData = new UserData("username","password","email@email.com");
 
         userDAO.createUser(userData);
-        Assertions.assertEquals(userData,userDAO.getUser("username"));
+        Assertions.assertEquals(userData.username(),userDAO.getUser("username").username());
     }
 
     @Test

@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.LoginRequest;
 
 import java.util.HashSet;
@@ -34,7 +35,7 @@ public class UserService
         if (user == null) {
             throw new UserNotRegisteredException();
         }
-        if (!Objects.equals(loginRequest.password(), user.password())) {
+        if (!BCrypt.checkpw(loginRequest.password(),user.password())) {
             throw new PasswordIncorrectException();
         }
         return authDAO.createAuth(loginRequest.username());

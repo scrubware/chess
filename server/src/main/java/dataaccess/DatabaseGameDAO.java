@@ -18,7 +18,27 @@ public class DatabaseGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            createGameTable(conn);
+
+            String sql = "SELECT id, white, black, gname, gdata FROM game WHERE id=?";
+
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setInt(1,gameID);
+                var result = statement.executeQuery();
+
+                result.next();
+                String white = result.getString("white");
+                String black = result.getString("black");
+                String gname = result.getString("gname");
+                ChessGame gdata = gson.fromJson(result.getString("gdata"),ChessGame.class);
+
+                return new GameData(gameID, white, black, gname, gdata);
+            }
+
+        } catch (Exception _) {
+            return null;
+        }
     }
 
     @Override

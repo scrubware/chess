@@ -20,7 +20,7 @@ public class GameDAOTests {
     @DisplayName("Get Game")
     public void getGame() {
         var gameDAO = new DatabaseGameDAO();
-        var emptyGame = new GameData(0,null, null, "game", new ChessGame());
+        var emptyGame = new GameData(1,null, null, "game", new ChessGame());
         int id = gameDAO.createGame("game");
         Assertions.assertEquals(emptyGame,gameDAO.getGame(id));
     }
@@ -36,7 +36,7 @@ public class GameDAOTests {
     @DisplayName("Update Game")
     public void updateGame() {
         var gameDAO = new DatabaseGameDAO();
-        var updatedGame = new GameData(0,"changed", null, "game", new ChessGame());
+        var updatedGame = new GameData(1,"changed", null, "game", new ChessGame());
         int id = gameDAO.createGame("game");
         Assertions.assertTrue(gameDAO.updateGame(id,updatedGame));
         Assertions.assertEquals(updatedGame,gameDAO.getGame(id));
@@ -46,7 +46,7 @@ public class GameDAOTests {
     @DisplayName("Update Game Negative")
     public void updateGameNegative() {
         var gameDAO = new DatabaseGameDAO();
-        var updatedGame = new GameData(0,"changed", null, "game", new ChessGame());
+        var updatedGame = new GameData(1,"changed", null, "game", new ChessGame());
         Assertions.assertFalse(gameDAO.updateGame(0,updatedGame));
     }
 

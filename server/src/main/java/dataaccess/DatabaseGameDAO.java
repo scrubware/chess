@@ -18,6 +18,16 @@ public class DatabaseGameDAO implements GameDAO {
 
     @Override
     public int createGame(String name) {
+        try (var conn = DatabaseManager.getConnection()) {
+            String sql = "INSERT INTO ";
+
+            try (var statement = conn.prepareStatement(sql)) {
+
+            }
+        } catch (Exception _) {
+
+        }
+
         return 0;
     }
 

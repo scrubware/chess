@@ -2,10 +2,15 @@ package dataaccess;
 
 import model.UserData;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class DatabaseUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) {
         try (var conn = DatabaseManager.getConnection()) {
+            createUserTable(conn);
+
             var sql = "SELECT username, password, email FROM user WHERE username=?";
 
             try (var statement = conn.prepareStatement(sql)) {
@@ -35,22 +40,7 @@ public class DatabaseUserDAO implements UserDAO {
     public void createUser(UserData userData) {
 
         try (var conn = DatabaseManager.getConnection()) {
-            DatabaseManager.createDatabase();
-            DatabaseManager.setCatalog();
-
-            var userTable = """
-            CREATE TABLE  IF NOT EXISTS user (
-                id INT NOT NULL AUTO_INCREMENT,
-                username VARCHAR(255) NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                PRIMARY KEY (id)
-            )""";
-
-
-            try (var tableStatement = conn.prepareStatement(userTable)) {
-                tableStatement.executeUpdate();
-            }
+            createUserTable(conn);
 
             var createUser = "INSERT INTO user (username, password, email) VALUES(?, ?, ?)";
 
@@ -64,5 +54,19 @@ public class DatabaseUserDAO implements UserDAO {
         } catch(Exception _) {
 
         }
+    }
+
+    private void createUserTable(Connection connection) throws SQLException {
+        var userTable = """
+            CREATE TABLE  IF NOT EXISTS user (
+                id INT NOT NULL AUTO_INCREMENT,
+                username VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            )""";
+
+        var tableStatement = connection.prepareStatement(userTable);
+        tableStatement.executeUpdate();
     }
 }

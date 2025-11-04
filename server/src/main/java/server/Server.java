@@ -20,6 +20,7 @@ public class Server {
 
         try {
             DatabaseManager.createDatabase();
+            DatabaseManager.setCatalog();
         } catch (DataAccessException _) {
 
         }

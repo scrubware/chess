@@ -43,7 +43,30 @@ public class DatabaseGameDAO implements GameDAO {
 
     @Override
     public boolean updateGame(int gameID, GameData gameData) {
-        return false;
+        try (var conn = DatabaseManager.getConnection()) {
+            createGameTable(conn);
+
+            String sql = "UPDATE game SET white=?, black=?, gname=?, gdata=? WHERE id=?";
+
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setString(1,gameData.whiteUsername());
+                statement.setString(2,gameData.blackUsername());
+                statement.setString(3,gameData.gameName());
+                statement.setString(4,gson.toJson(gameData.game()));
+                statement.setInt(5,gameID);
+
+                int rows = statement.executeUpdate();
+
+                // This condition runs if 'WHERE id=?;' call failed.
+                if (rows == 0) {
+                    throw new SQLException();
+                }
+
+                return true;
+            }
+        } catch (Exception _) {
+            return false;
+        }
     }
 
     @Override

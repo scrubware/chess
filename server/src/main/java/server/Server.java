@@ -18,13 +18,6 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        try {
-            DatabaseManager.createDatabase();
-            DatabaseManager.setCatalog();
-        } catch (DataAccessException _) {
-
-        }
-
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
         var userDAO = new DatabaseUserDAO();

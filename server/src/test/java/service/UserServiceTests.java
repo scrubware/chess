@@ -1,12 +1,10 @@
 package service;
 
 
+import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
 
 import requests.LoginRequest;
 
@@ -18,8 +16,8 @@ public class UserServiceTests {
     @Test
     @DisplayName("Valid Register")
     public void register() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
 
@@ -31,8 +29,8 @@ public class UserServiceTests {
     @Test
     @DisplayName("Invalid Register")
     public void registerBad() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
 
@@ -44,8 +42,8 @@ public class UserServiceTests {
     @Test
     @DisplayName("Valid Logout")
     public void logout() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
 
@@ -61,8 +59,8 @@ public class UserServiceTests {
     @Test
     @DisplayName("Invalid Logout")
     public void logoutBad() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
 
@@ -76,8 +74,8 @@ public class UserServiceTests {
     @Test
     @DisplayName("Valid Login")
     public void login() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
 
@@ -97,8 +95,8 @@ public class UserServiceTests {
     @Test
     @DisplayName("Invalid Login")
     public void loginBad() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
 

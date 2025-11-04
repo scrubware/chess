@@ -1,12 +1,9 @@
 package service;
 
+import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.MemoryAuthDAO;
 
 import model.UserData;
 
@@ -15,9 +12,9 @@ public class GameServiceTests {
     @Test
     @DisplayName("Create Game Valid")
     public void createGame() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
-        var gameDAO = new MemoryGameDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
         var gameService = new GameService(authDAO, gameDAO);
@@ -30,9 +27,9 @@ public class GameServiceTests {
     @Test
     @DisplayName("Create Game Invalid")
     public void createGameBad() {
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
-        var gameDAO = new MemoryGameDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
         var gameService = new GameService(authDAO, gameDAO);
@@ -46,9 +43,9 @@ public class GameServiceTests {
     @DisplayName("Join Game Valid")
     public void joinGame() {
 
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
-        var gameDAO = new MemoryGameDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
         var gameService = new GameService(authDAO, gameDAO);
@@ -64,9 +61,9 @@ public class GameServiceTests {
     @DisplayName("Join Game Invalid")
     public void joinGameBad() {
 
-        var authDAO = new MemoryAuthDAO();
-        var userDAO = new MemoryUserDAO();
-        var gameDAO = new MemoryGameDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
 
         var userService = new UserService(authDAO, userDAO);
         var gameService = new GameService(authDAO, gameDAO);
@@ -82,13 +79,14 @@ public class GameServiceTests {
     @DisplayName("List Games")
     public void listGames() {
 
-        var authDAO = new MemoryAuthDAO();
-        var gameDAO = new MemoryGameDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
+        var clearDAO = new DatabaseClearDAO();
 
         var gameService = new GameService(authDAO,gameDAO);
         var userService = new UserService(authDAO,userDAO);
-        var adminService = new AdminService(authDAO,gameDAO,userDAO);
+        var adminService = new AdminService(clearDAO);
 
         var userData = new UserData("username","password","mail@mail.com");
         var authData = userService.register(userData);
@@ -106,13 +104,14 @@ public class GameServiceTests {
     @DisplayName("List Games")
     public void listGamesBad() {
 
-        var authDAO = new MemoryAuthDAO();
-        var gameDAO = new MemoryGameDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
+        var clearDAO = new DatabaseClearDAO();
 
         var gameService = new GameService(authDAO,gameDAO);
         var userService = new UserService(authDAO,userDAO);
-        var adminService = new AdminService(authDAO,gameDAO,userDAO);
+        var adminService = new AdminService(clearDAO);
 
         var userData = new UserData("username","password","mail@mail.com");
         var authData = userService.register(userData);

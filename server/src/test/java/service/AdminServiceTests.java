@@ -4,14 +4,10 @@ package service;
 
 
 
-import dataaccess.DatabaseClearDAO;
+import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
 
 import model.UserData;
 
@@ -21,9 +17,9 @@ public class AdminServiceTests {
     @DisplayName("Clear Database")
     public void clear() {
 
-        var authDAO = new MemoryAuthDAO();
-        var gameDAO = new MemoryGameDAO();
-        var userDAO = new MemoryUserDAO();
+        var authDAO = new DatabaseAuthDAO();
+        var gameDAO = new DatabaseGameDAO();
+        var userDAO = new DatabaseUserDAO();
         var clearDAO = new DatabaseClearDAO();
 
         var gameService = new GameService(authDAO,gameDAO);

@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 public class GameDAOTests {
 
     @BeforeEach
@@ -69,12 +71,27 @@ public class GameDAOTests {
     @Test
     @DisplayName("List Games")
     public void listGames() {
+        var gameDAO = new DatabaseGameDAO();
+        var emptyGame = new GameData(1,null, null, "game", new ChessGame());
+        var gameList = new ArrayList<GameData>();
 
+        Assertions.assertTrue(gameDAO.listGames().isEmpty());
+
+        gameDAO.createGame("game");
+        Assertions.assertEquals(1,gameDAO.listGames().size());
+
+        gameList.add(emptyGame);
+        Assertions.assertEquals(gameList,gameDAO.listGames());
+
+        gameDAO.createGame("game2");
+        Assertions.assertEquals(2,gameDAO.listGames().size());
     }
 
     @Test
     @DisplayName("List Games Negative")
     public void listGamesNegative() {
-
+        var gameDAO = new DatabaseGameDAO();
+        gameDAO.createGame(null);
+        Assertions.assertTrue(gameDAO.listGames().isEmpty());
     }
 }

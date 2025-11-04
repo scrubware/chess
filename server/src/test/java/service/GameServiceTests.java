@@ -36,7 +36,7 @@ public class GameServiceTests {
 
     @Test
     @DisplayName("Create Game Invalid")
-    public void createGameBad() throws DataAccessException {
+    public void createGameBad() {
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
 

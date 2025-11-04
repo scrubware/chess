@@ -29,8 +29,6 @@ public class DatabaseUserDAO implements UserDAO {
         } catch (Exception _) {
             throw new DataAccessException();
         }
-
-        return null;
     }
 
     @Override

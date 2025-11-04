@@ -16,13 +16,10 @@ public class DatabaseUserDAO implements UserDAO {
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1,username);
                 try (var rs = statement.executeQuery()) {
-
-                    String password;
-                    String email;
                     while (rs.next()) {
                         rs.getString("username");
-                        password = rs.getString("password");
-                        email = rs.getString("email");
+                        String password = rs.getString("password");
+                        String email = rs.getString("email");
 
                         return new UserData(username, password, email);
                     }
@@ -58,12 +55,11 @@ public class DatabaseUserDAO implements UserDAO {
 
     private void createUserTable(Connection connection) throws SQLException {
         var userTable = """
-            CREATE TABLE  IF NOT EXISTS user (
-                id INT NOT NULL AUTO_INCREMENT,
+            CREATE TABLE IF NOT EXISTS user (
                 username VARCHAR(255) NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(255) NOT NULL,
-                PRIMARY KEY (id)
+                PRIMARY KEY (username)
             )""";
 
         var tableStatement = connection.prepareStatement(userTable);

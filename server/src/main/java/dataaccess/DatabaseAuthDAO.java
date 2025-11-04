@@ -18,13 +18,13 @@ public class DatabaseAuthDAO implements AuthDAO {
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1, authToken);
                 try (var result = statement.executeQuery()) {
+                    result.next();
                     return result.getString("username");
                 }
             }
         } catch (Exception _) {
-
+            return null;
         }
-        return "";
     }
 
     @Override
@@ -34,22 +34,17 @@ public class DatabaseAuthDAO implements AuthDAO {
 
             String sql = "INSERT INTO auth (username, authToken) VALUES(?, ?)";
 
-            AuthData authData = new AuthData(username,UUID.randomUUID().toString());
+            AuthData authData = new AuthData(UUID.randomUUID().toString(),username);
 
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1,authData.username());
                 statement.setString(2,authData.authToken());
-
-
                 statement.executeUpdate();
-
                 return authData;
             }
         } catch (Exception _) {
-
+            return null;
         }
-
-        return null;
     }
 
     @Override
@@ -62,15 +57,15 @@ public class DatabaseAuthDAO implements AuthDAO {
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1, authToken);
                 try (var result = statement.executeQuery()) {
+                    result.next();
                     boolean user = result.getString("username") != null;
                     boolean auth = result.getString("authToken") != null;
                     return user && auth;
                 }
             }
         } catch (Exception _) {
-
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -94,7 +89,7 @@ public class DatabaseAuthDAO implements AuthDAO {
         CREATE TABLE IF NOT EXISTS auth (
             username VARCHAR(255) NOT NULL,
             authToken VARCHAR(255) NOT NULL,
-            PRIMARY KEY (authToken)
+            PRIMARY KEY (username)
         )""";
 
         var tableStatement = connection.prepareStatement(authTable);

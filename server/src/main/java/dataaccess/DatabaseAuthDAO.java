@@ -5,6 +5,7 @@ import model.UserData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class DatabaseAuthDAO implements AuthDAO {
     @Override
@@ -28,6 +29,24 @@ public class DatabaseAuthDAO implements AuthDAO {
 
     @Override
     public AuthData createAuth(String username) {
+        try (var conn = DatabaseManager.getConnection()) {
+            createAuthTable(conn);
+
+            String sql = "INSERT INTO auth (username, authToken) VALUES(?, ?)";
+
+            AuthData authData = new AuthData(username,UUID.randomUUID().toString());
+
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setString(1,authData.username());
+                statement.setString(2,authData.authToken());
+                statement.executeUpdate();
+
+                return authData;
+            }
+        } catch (Exception _) {
+
+        }
+
         return null;
     }
 
@@ -54,7 +73,18 @@ public class DatabaseAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) {
+        try (var conn = DatabaseManager.getConnection()) {
+            createAuthTable(conn);
 
+            String sql = "DELETE FROM auth WHERE authToken=?";
+
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setString(1,authToken);
+                statement.executeUpdate();
+            }
+        } catch (Exception _) {
+
+        }
     }
 
     private void createAuthTable(Connection connection) throws SQLException {

@@ -20,10 +20,10 @@ public class DatabaseAuthDAO implements AuthDAO {
                     result.next();
                     return result.getString("username");
                 }
-            } catch (Exception _) {
+            } catch (Exception e) {
                 return null;
             }
-        } catch (Exception _) {
+        } catch (Exception e) {
             throw new DataAccessException();
         }
     }
@@ -42,10 +42,10 @@ public class DatabaseAuthDAO implements AuthDAO {
                 statement.setString(2,authData.authToken());
                 statement.executeUpdate();
                 return authData;
-            } catch (Exception _) {
+            } catch (Exception e) {
                 return null;
             }
-        } catch (Exception _) {
+        } catch (Exception e) {
             throw new DataAccessException();
         }
     }
@@ -65,10 +65,10 @@ public class DatabaseAuthDAO implements AuthDAO {
                     boolean auth = result.getString("authToken") != null;
                     return user && auth;
                 }
-            } catch (Exception _) {
+            } catch (Exception e) {
                 return false;
             }
-        } catch (Exception _) {
+        } catch (Exception e) {
             throw new DataAccessException();
         }
     }
@@ -83,8 +83,8 @@ public class DatabaseAuthDAO implements AuthDAO {
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1,authToken);
                 statement.executeUpdate();
-            } catch (Exception _) {}
-        } catch (Exception _) {
+            } catch (Exception e) {}
+        } catch (Exception e) {
             throw new DataAccessException();
         }
     }

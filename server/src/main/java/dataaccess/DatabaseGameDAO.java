@@ -36,7 +36,7 @@ public class DatabaseGameDAO implements GameDAO {
                 return new GameData(gameID, white, black, gname, gdata);
             }
 
-        } catch (Exception _) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -64,7 +64,7 @@ public class DatabaseGameDAO implements GameDAO {
 
                 return true;
             }
-        } catch (Exception _) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -92,7 +92,7 @@ public class DatabaseGameDAO implements GameDAO {
 
                 return id;
             }
-        } catch (Exception _) {
+        } catch (Exception e) {
             return -1;
         }
     }
@@ -122,7 +122,7 @@ public class DatabaseGameDAO implements GameDAO {
                 return games;
             }
 
-        } catch (Exception _) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
     }

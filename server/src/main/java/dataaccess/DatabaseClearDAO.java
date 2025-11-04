@@ -5,7 +5,7 @@ public class DatabaseClearDAO implements ClearDAO {
     public void clear() throws DataAccessException {
         try {
             DatabaseManager.dropDatabase();
-        } catch (Exception _) {
+        } catch (Exception e) {
             throw new DataAccessException();
         }
     }

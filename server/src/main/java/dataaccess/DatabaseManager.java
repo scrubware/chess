@@ -35,7 +35,7 @@ public class DatabaseManager {
             try {
                 var preparedStatement = conn.prepareStatement(statement);
                 preparedStatement.executeUpdate();
-            } catch (Exception _) {}
+            } catch (Exception e) {}
         } catch (SQLException ex) {
             throw new DataAccessException("failed to drop database", ex);
         }

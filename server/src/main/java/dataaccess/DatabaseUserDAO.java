@@ -26,7 +26,7 @@ public class DatabaseUserDAO implements UserDAO {
                 }
             }
 
-        } catch (Exception _) {
+        } catch (Exception e) {
             throw new DataAccessException();
         }
     }
@@ -46,7 +46,7 @@ public class DatabaseUserDAO implements UserDAO {
                 userStatement.executeUpdate();
             }
 
-        } catch(Exception _) {
+        } catch(Exception e) {
             throw new DataAccessException();
         }
     }

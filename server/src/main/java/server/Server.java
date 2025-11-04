@@ -24,7 +24,6 @@ public class Server {
 
         }
 
-
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
         var userDAO = new DatabaseUserDAO();

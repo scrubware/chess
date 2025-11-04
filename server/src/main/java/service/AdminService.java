@@ -1,27 +1,19 @@
 package service;
 
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import requests.ClearRequest;
 import results.ClearResult;
 
 public class AdminService {
 
-    private final AuthDAO authDAO;
-    private final GameDAO gameDAO;
-    private final UserDAO userDAO;
+    private final ClearDAO clearDAO;
 
-    public AdminService(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
-        this.authDAO = authDAO;
-        this.gameDAO = gameDAO;
-        this.userDAO = userDAO;
+    public AdminService(ClearDAO clearDAO) {
+        this.clearDAO = clearDAO;
     }
 
-    public void clear() {
-        authDAO.clear();
-        gameDAO.clear();
-        userDAO.clear();
+    public void clear() throws DataAccessException {
+        clearDAO.clear();
     }
 }

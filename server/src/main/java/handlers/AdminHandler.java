@@ -1,10 +1,7 @@
 package handlers;
 
+import dataaccess.*;
 import io.javalin.http.Context;
-
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 
 import requests.ClearRequest;
 
@@ -14,11 +11,11 @@ public class AdminHandler {
 
     AdminService adminService;
 
-    public AdminHandler(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
-        adminService = new AdminService(authDAO, gameDAO, userDAO);
+    public AdminHandler(ClearDAO clearDAO) {
+        adminService = new AdminService(clearDAO);
     }
 
-    public void handleClear(Context ctx) {
+    public void handleClear(Context ctx) throws DataAccessException {
         adminService.clear();
         ctx.status(200);
     }

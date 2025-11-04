@@ -17,8 +17,9 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(int gameID, GameData gameData) {
+    public boolean updateGame(int gameID, GameData gameData) {
         games.set(gameID - 1, gameData);
+        return true;
     }
 
     @Override

@@ -34,7 +34,7 @@ public class DatabaseUserDAO implements UserDAO {
     }
 
     @Override
-    public void createUser(UserData userData) {
+    public boolean createUser(UserData userData) {
 
         try (var conn = DatabaseManager.getConnection()) {
             createUserTable(conn);
@@ -46,10 +46,12 @@ public class DatabaseUserDAO implements UserDAO {
                 userStatement.setString(2,userData.password());
                 userStatement.setString(3,userData.email());
                 userStatement.executeUpdate();
+
+                return true;
             }
 
         } catch(Exception _) {
-
+            return false;
         }
     }
 

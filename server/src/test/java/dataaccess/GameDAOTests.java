@@ -54,14 +54,16 @@ public class GameDAOTests {
     @DisplayName("Create Game")
     public void createGame() {
         var gameDAO = new DatabaseGameDAO();
-        Assertions.assertTrue(gameDAO.createGame("game") >= 0);
+        int id = gameDAO.createGame("game");
+        Assertions.assertTrue(id >= 0);
     }
 
     @Test
     @DisplayName("Create Game Negative")
     public void createGameNegative() {
         var gameDAO = new DatabaseGameDAO();
-        Assertions.assertFalse(gameDAO.createGame("") >= 0);
+        Assertions.assertFalse(gameDAO.createGame(null) >= 0);
+        Assertions.assertTrue(gameDAO.listGames().isEmpty());
     }
 
     @Test

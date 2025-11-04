@@ -17,7 +17,6 @@ public class AuthDAOTests {
     @Test
     @DisplayName("Create Auth")
     public void createAuth() {
-
         var authDAO = new DatabaseAuthDAO();
         Assertions.assertNotNull(authDAO.createAuth("username"));
     }
@@ -25,42 +24,56 @@ public class AuthDAOTests {
     @Test
     @DisplayName("Create Auth Negative")
     public void createAuthNegative() {
-
+        var authDAO = new DatabaseAuthDAO();
+        Assertions.assertNotNull(authDAO.createAuth("username"));
+        Assertions.assertNull(authDAO.createAuth("username"));
     }
 
     @Test
     @DisplayName("Get Username")
     public void getUsername() {
-
+        var authDAO = new DatabaseAuthDAO();
+        var authData = authDAO.createAuth("username");
+        Assertions.assertEquals("username", authDAO.getUsername(authData.authToken()));
     }
 
     @Test
     @DisplayName("Get Username Negative")
     public void getUsernameNegative() {
-
+        var authDAO = new DatabaseAuthDAO();
+        Assertions.assertNull(authDAO.getUsername("random token"));
     }
 
     @Test
     @DisplayName("Auth Exists")
     public void authExists() {
-
+        var authDAO = new DatabaseAuthDAO();
+        var authData = authDAO.createAuth("username");
+        Assertions.assertTrue(authDAO.authExists(authData.authToken()));
     }
 
     @Test
     @DisplayName("Auth Exists Negative")
     public void authExistsNegative() {
-
+        var authDAO = new DatabaseAuthDAO();
+        Assertions.assertFalse(authDAO.authExists("random token"));
     }
 
     @Test
     @DisplayName("Delete Auth")
     public void deleteAuth() {
-
+        var authDAO = new DatabaseAuthDAO();
+        var authData = authDAO.createAuth("username");
+        authDAO.deleteAuth(authData.authToken());
+        Assertions.assertFalse(authDAO.authExists(authData.authToken()));
     }
 
     @Test
     @DisplayName("Delete Auth Negative")
     public void deleteAuthNegative() {
-
+        var authDAO = new DatabaseAuthDAO();
+        var authData = authDAO.createAuth("username");
+        authDAO.deleteAuth("random token");
+        Assertions.assertTrue(authDAO.authExists(authData.authToken()));
     }
 }

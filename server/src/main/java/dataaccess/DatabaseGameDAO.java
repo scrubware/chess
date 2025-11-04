@@ -17,7 +17,7 @@ public class DatabaseGameDAO implements GameDAO {
     Gson gson = new Gson();
 
     @Override
-    public GameData getGame(int gameID) {
+    public GameData getGame(int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             createGameTable(conn);
 

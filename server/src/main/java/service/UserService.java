@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
@@ -21,7 +22,7 @@ public class UserService
         this.userDAO = userDAO;
     }
 
-    public AuthData register(UserData userData) throws AlreadyTakenException {
+    public AuthData register(UserData userData) throws AlreadyTakenException, DataAccessException {
         UserData user = userDAO.getUser(userData.username());
         if (user != null) {
             throw new AlreadyTakenException();
@@ -30,7 +31,7 @@ public class UserService
         return authDAO.createAuth(userData.username());
     }
 
-    public AuthData login(LoginRequest loginRequest) throws UserNotRegisteredException, PasswordIncorrectException {
+    public AuthData login(LoginRequest loginRequest) throws UserNotRegisteredException, PasswordIncorrectException, DataAccessException {
         UserData user = userDAO.getUser(loginRequest.username());
         if (user == null) {
             throw new UserNotRegisteredException();
@@ -41,7 +42,7 @@ public class UserService
         return authDAO.createAuth(loginRequest.username());
     }
 
-    public void logout(String authToken) throws InvalidAuthTokenException {
+    public void logout(String authToken) throws InvalidAuthTokenException, DataAccessException {
         if (!authDAO.authExists(authToken)) {
             throw new InvalidAuthTokenException();
         }

@@ -2,7 +2,6 @@ package dataaccess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import chess.ChessGame;
 import model.GameData;
@@ -12,7 +11,7 @@ public class MemoryGameDAO implements GameDAO {
     ArrayList<GameData> games = new ArrayList<>();
 
     @Override
-    public GameData getGame(int gameID) {
+    public GameData getGame(int gameID) throws DataAccessException {
         return games.get(gameID - 1);
     }
 

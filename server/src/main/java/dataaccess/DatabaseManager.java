@@ -31,9 +31,11 @@ public class DatabaseManager {
 
     static public void dropDatabase() throws DataAccessException {
         var statement = "DROP DATABASE " + databaseName;
-        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
-             var preparedStatement = conn.prepareStatement(statement)) {
-            preparedStatement.executeUpdate();
+        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword)) {
+            try {
+                var preparedStatement = conn.prepareStatement(statement);
+                preparedStatement.executeUpdate();
+            } catch (Exception _) {}
         } catch (SQLException ex) {
             throw new DataAccessException("failed to drop database", ex);
         }

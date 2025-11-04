@@ -3,6 +3,7 @@ package handlers;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 
 import dataaccess.AuthDAO;
@@ -22,7 +23,7 @@ public class GameHandler {
         this.gameService = new GameService(authDAO,gameDAO);
     }
 
-    public void handleListGames(Context ctx) {
+    public void handleListGames(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
         if (authToken == null) {
             throw new BadRequestException();
@@ -36,7 +37,7 @@ public class GameHandler {
         ctx.result(gson.toJson(games));
     }
 
-    public void handleCreateGame(Context ctx) {
+    public void handleCreateGame(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
         JsonElement name = gson.fromJson(ctx.body(), JsonObject.class).get("gameName");
 
@@ -50,7 +51,7 @@ public class GameHandler {
         ctx.result("{\"gameID\": " + gameID + "}");
     }
 
-    public void handleJoinGame(Context ctx) {
+    public void handleJoinGame(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
         JsonElement gameID = gson.fromJson(ctx.body(), JsonObject.class).get("gameID");
         JsonElement playerColor = gson.fromJson(ctx.body(), JsonObject.class).get("playerColor");

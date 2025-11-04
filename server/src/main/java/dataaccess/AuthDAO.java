@@ -4,8 +4,8 @@ import model.AuthData;
 
 public interface AuthDAO {
 
-    String getUsername(String authToken);
-    AuthData createAuth(String username);
-    boolean authExists(String authToken);
-    void deleteAuth(String authToken);
+    String getUsername(String authToken) throws DataAccessException ;
+    AuthData createAuth(String username) throws DataAccessException ;
+    boolean authExists(String authToken) throws DataAccessException ;
+    void deleteAuth(String authToken) throws DataAccessException ;
 }

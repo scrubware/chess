@@ -9,9 +9,12 @@ import org.junit.jupiter.api.Test;
 public class UserDAOTests {
 
     @BeforeEach
-    public void clear() {
+    public void clearBefore() {
         var clearDAO = new DatabaseClearDAO();
-        clearDAO.clear();
+
+        try {
+            clearDAO.clear();
+        } catch(Exception _) {}
     }
 
     @Test
@@ -20,7 +23,7 @@ public class UserDAOTests {
         var userDAO = new DatabaseUserDAO();
         var userData = new UserData("username","password","email@email.com");
 
-        Assertions.assertTrue(userDAO.createUser(userData));
+        Assertions.assertDoesNotThrow(() -> userDAO.createUser(userData));
     }
 
     @Test
@@ -29,23 +32,23 @@ public class UserDAOTests {
         var userDAO = new DatabaseUserDAO();
         var userData = new UserData("username","password","email@email.com");
 
-        userDAO.createUser(userData);
-        Assertions.assertFalse(userDAO.createUser(userData));
+        Assertions.assertDoesNotThrow(() -> userDAO.createUser(userData));
+        Assertions.assertThrows(DataAccessException.class,() -> userDAO.createUser(userData));
     }
 
     @Test
     @DisplayName("Get User")
-    public void getUser() {
+    public void getUser() throws DataAccessException {
         var userDAO = new DatabaseUserDAO();
         var userData = new UserData("username","password","email@email.com");
 
-        userDAO.createUser(userData);
+        Assertions.assertDoesNotThrow(() -> userDAO.createUser(userData));
         Assertions.assertEquals(userData.username(),userDAO.getUser("username").username());
     }
 
     @Test
     @DisplayName("Get User Negative")
-    public void getUserNegative() {
+    public void getUserNegative() throws DataAccessException {
         var userDAO = new DatabaseUserDAO();
         Assertions.assertNull(userDAO.getUser("username"));
     }

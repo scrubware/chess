@@ -15,14 +15,17 @@ import model.UserData;
 public class UserServiceTests {
 
     @BeforeEach
-    public void clear() {
+    public void clearBefore() {
         var clearDAO = new DatabaseClearDAO();
-        clearDAO.clear();
+
+        try {
+            clearDAO.clear();
+        } catch(Exception _) {}
     }
 
     @Test
     @DisplayName("Valid Register")
-    public void register() {
+    public void register() throws DataAccessException {
         var authDAO = new DatabaseAuthDAO();
         var userDAO = new DatabaseUserDAO();
 
@@ -35,7 +38,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Invalid Register")
-    public void registerBad() {
+    public void registerBad() throws DataAccessException {
         var authDAO = new DatabaseAuthDAO();
         var userDAO = new DatabaseUserDAO();
 
@@ -48,7 +51,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Valid Logout")
-    public void logout() {
+    public void logout() throws DataAccessException {
         var authDAO = new DatabaseAuthDAO();
         var userDAO = new DatabaseUserDAO();
 
@@ -65,7 +68,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Invalid Logout")
-    public void logoutBad() {
+    public void logoutBad() throws DataAccessException {
         var authDAO = new DatabaseAuthDAO();
         var userDAO = new DatabaseUserDAO();
 
@@ -80,7 +83,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Valid Login")
-    public void login() {
+    public void login() throws DataAccessException {
         var authDAO = new DatabaseAuthDAO();
         var userDAO = new DatabaseUserDAO();
 
@@ -101,7 +104,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Invalid Login")
-    public void loginBad() {
+    public void loginBad() throws DataAccessException {
         var authDAO = new DatabaseAuthDAO();
         var userDAO = new DatabaseUserDAO();
 

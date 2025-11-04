@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class DatabaseAuthDAO implements AuthDAO {
     @Override
-    public String getUsername(String authToken) {
+    public String getUsername(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             createAuthTable(conn);
 
@@ -20,14 +20,16 @@ public class DatabaseAuthDAO implements AuthDAO {
                     result.next();
                     return result.getString("username");
                 }
+            } catch (Exception _) {
+                return null;
             }
         } catch (Exception _) {
-            return null;
+            throw new DataAccessException();
         }
     }
 
     @Override
-    public AuthData createAuth(String username) {
+    public AuthData createAuth(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             createAuthTable(conn);
 
@@ -40,14 +42,16 @@ public class DatabaseAuthDAO implements AuthDAO {
                 statement.setString(2,authData.authToken());
                 statement.executeUpdate();
                 return authData;
+            } catch (Exception _) {
+                return null;
             }
         } catch (Exception _) {
-            return null;
+            throw new DataAccessException();
         }
     }
 
     @Override
-    public boolean authExists(String authToken) {
+    public boolean authExists(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             createAuthTable(conn);
 
@@ -61,14 +65,16 @@ public class DatabaseAuthDAO implements AuthDAO {
                     boolean auth = result.getString("authToken") != null;
                     return user && auth;
                 }
+            } catch (Exception _) {
+                return false;
             }
         } catch (Exception _) {
-            return false;
+            throw new DataAccessException();
         }
     }
 
     @Override
-    public void deleteAuth(String authToken) {
+    public void deleteAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             createAuthTable(conn);
 
@@ -77,9 +83,9 @@ public class DatabaseAuthDAO implements AuthDAO {
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1,authToken);
                 statement.executeUpdate();
-            }
+            } catch (Exception _) {}
         } catch (Exception _) {
-
+            throw new DataAccessException();
         }
     }
 

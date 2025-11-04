@@ -17,12 +17,15 @@ public class AdminServiceTests {
     @BeforeEach
     public void clearBefore() {
         var clearDAO = new DatabaseClearDAO();
-        clearDAO.clear();
+
+        try {
+            clearDAO.clear();
+        } catch(Exception _) {}
     }
 
     @Test
     @DisplayName("Clear Database")
-    public void clear() {
+    public void clear() throws DataAccessException {
 
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();

@@ -3,6 +3,7 @@ package service;
 import java.util.Objects;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 
 import model.GameData;
@@ -18,21 +19,21 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public ListGamesResult listGames(String authToken) {
+    public ListGamesResult listGames(String authToken) throws DataAccessException {
         if (!authDAO.authExists(authToken)) {
             throw new InvalidAuthTokenException();
         }
         return new ListGamesResult(gameDAO.listGames());
     }
 
-    public int createGame(String authToken, String name) {
+    public int createGame(String authToken, String name) throws DataAccessException {
         if (!authDAO.authExists(authToken)) {
             throw new InvalidAuthTokenException();
         }
         return gameDAO.createGame(name);
     }
 
-    public void joinGame(String authToken, String playerColor, int gameID) {
+    public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
         if (!authDAO.authExists(authToken)) {
             throw new InvalidAuthTokenException();
         }
@@ -41,7 +42,12 @@ public class GameService {
             throw new BadRequestException();
         }
 
-        GameData game = gameDAO.getGame(gameID);
+        GameData game = null;
+        try {
+            game = gameDAO.getGame(gameID);
+        } catch (dataaccess.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         boolean white = Objects.equals(playerColor, "WHITE");
         String username = authDAO.getUsername(authToken);

@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class DatabaseUserDAO implements UserDAO {
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             createUserTable(conn);
 
@@ -28,14 +28,14 @@ public class DatabaseUserDAO implements UserDAO {
             }
 
         } catch (Exception _) {
-            return null;
+            throw new DataAccessException();
         }
 
         return null;
     }
 
     @Override
-    public boolean createUser(UserData userData) {
+    public void createUser(UserData userData) throws DataAccessException {
 
         try (var conn = DatabaseManager.getConnection()) {
             createUserTable(conn);
@@ -47,12 +47,10 @@ public class DatabaseUserDAO implements UserDAO {
                 userStatement.setString(2,BCrypt.hashpw(userData.password(), BCrypt.gensalt()));
                 userStatement.setString(3,userData.email());
                 userStatement.executeUpdate();
-
-                return true;
             }
 
         } catch(Exception _) {
-            return false;
+            throw new DataAccessException();
         }
     }
 

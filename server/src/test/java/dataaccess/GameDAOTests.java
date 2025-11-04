@@ -1,7 +1,6 @@
 package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.*;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,9 +12,12 @@ import java.util.ArrayList;
 public class GameDAOTests {
 
     @BeforeEach
-    public void clear() {
+    public void clearBefore() {
         var clearDAO = new DatabaseClearDAO();
-        clearDAO.clear();
+
+        try {
+            clearDAO.clear();
+        } catch(Exception _) {}
     }
 
     @Test
@@ -24,14 +26,22 @@ public class GameDAOTests {
         var gameDAO = new DatabaseGameDAO();
         var emptyGame = new GameData(1,null, null, "game", new ChessGame());
         int id = gameDAO.createGame("game");
-        Assertions.assertEquals(emptyGame,gameDAO.getGame(id));
+        try {
+            Assertions.assertEquals(emptyGame,gameDAO.getGame(id));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     @DisplayName("Get Game Negative")
     public void getGameNegative() {
         var gameDAO = new DatabaseGameDAO();
-        Assertions.assertNull(gameDAO.getGame(0));
+        try {
+            Assertions.assertNull(gameDAO.getGame(0));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -41,7 +51,11 @@ public class GameDAOTests {
         var updatedGame = new GameData(1,"changed", null, "game", new ChessGame());
         int id = gameDAO.createGame("game");
         Assertions.assertTrue(gameDAO.updateGame(id,updatedGame));
-        Assertions.assertEquals(updatedGame,gameDAO.getGame(id));
+        try {
+            Assertions.assertEquals(updatedGame,gameDAO.getGame(id));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

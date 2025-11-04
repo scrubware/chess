@@ -39,12 +39,8 @@ public class GameServiceTests {
     public void createGameBad() throws DataAccessException {
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
-        var userDAO = new DatabaseUserDAO();
 
-        var userService = new UserService(authDAO, userDAO);
         var gameService = new GameService(authDAO, gameDAO);
-
-        var authData = userService.register(new UserData("username","password","email"));
 
         Assertions.assertThrows(InvalidAuthTokenException.class, () -> gameService.createGame(null,"yay"));
     }
@@ -99,7 +95,6 @@ public class GameServiceTests {
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
         var userDAO = new DatabaseUserDAO();
-        var clearDAO = new DatabaseClearDAO();
 
         var gameService = new GameService(authDAO,gameDAO);
         var userService = new UserService(authDAO,userDAO);
@@ -127,7 +122,6 @@ public class GameServiceTests {
         var authDAO = new DatabaseAuthDAO();
         var gameDAO = new DatabaseGameDAO();
         var userDAO = new DatabaseUserDAO();
-        var clearDAO = new DatabaseClearDAO();
 
         var gameService = new GameService(authDAO,gameDAO);
         var userService = new UserService(authDAO,userDAO);

@@ -42,7 +42,7 @@ public class GameService {
             throw new BadRequestException();
         }
 
-        GameData game = null;
+        GameData game;
         try {
             game = gameDAO.getGame(gameID);
         } catch (dataaccess.DataAccessException e) {

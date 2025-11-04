@@ -11,7 +11,7 @@ public class MemoryGameDAO implements GameDAO {
     ArrayList<GameData> games = new ArrayList<>();
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) {
         return games.get(gameID - 1);
     }
 

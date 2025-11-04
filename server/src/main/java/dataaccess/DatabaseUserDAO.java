@@ -17,13 +17,12 @@ public class DatabaseUserDAO implements UserDAO {
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setString(1,username);
                 try (var rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        rs.getString("username");
-                        String password = rs.getString("password");
-                        String email = rs.getString("email");
+                    rs.next();
+                    rs.getString("username");
+                    String password = rs.getString("password");
+                    String email = rs.getString("email");
 
-                        return new UserData(username, password, email);
-                    }
+                    return new UserData(username, password, email);
                 }
             }
 

@@ -8,14 +8,10 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 import requests.LoginRequest;
 
-import java.util.HashSet;
-import java.util.Objects;
-
 public class UserService
 {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
-    HashSet<UserData> users;
 
     public UserService(AuthDAO authDAO, UserDAO userDAO) {
         this.authDAO = authDAO;

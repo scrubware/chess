@@ -43,7 +43,6 @@ public class MemoryGameDAO implements GameDAO {
         return games;
     }
 
-    @Override
     public void clear() {
         games.clear();
     }

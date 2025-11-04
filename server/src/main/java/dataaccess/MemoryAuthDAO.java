@@ -43,7 +43,6 @@ public class MemoryAuthDAO implements AuthDAO {
         auths.removeIf(auth -> Objects.equals(auth.authToken(), authToken));
     }
 
-    @Override
     public void clear() {
         auths.clear();
     }

@@ -2,8 +2,6 @@ package service;
 
 
 import dataaccess.*;
-import requests.ClearRequest;
-import results.ClearResult;
 
 public class AdminService {
 

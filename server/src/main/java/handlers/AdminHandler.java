@@ -3,8 +3,6 @@ package handlers;
 import dataaccess.*;
 import io.javalin.http.Context;
 
-import requests.ClearRequest;
-
 import service.AdminService;
 
 public class AdminHandler {

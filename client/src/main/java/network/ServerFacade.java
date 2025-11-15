@@ -3,6 +3,7 @@ package network;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
+import requests.LoginRequest;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -31,7 +32,7 @@ public class ServerFacade {
 
             HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (httpResponse.statusCode() >= 200) {
+            if (httpResponse.statusCode() == 200) {
                 return gson.fromJson(httpResponse.body(), AuthData.class);
             }
             return null;
@@ -41,11 +42,43 @@ public class ServerFacade {
     }
 
     public AuthData login(String username, String password) {
-        return null;
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new LoginRequest(username,password))))
+                    .uri(new URI(address + "/session"))
+                    //.header("Authorization", "secret1")
+                    .timeout(java.time.Duration.ofMillis(5000))
+                    .build();
+
+            HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (httpResponse.statusCode() == 200) {
+                return gson.fromJson(httpResponse.body(), AuthData.class);
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    public void logout() {
+    public void logout(AuthData auth) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .DELETE()
+                    .uri(new URI(address + "/session"))
+                    .header("authorization", auth.authToken())
+                    .timeout(java.time.Duration.ofMillis(5000))
+                    .build();
 
+            HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (httpResponse.statusCode() == 200) {
+                return gson.fromJson(httpResponse.body(), AuthData.class);
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public void createGame() {

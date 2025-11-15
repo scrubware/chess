@@ -34,7 +34,31 @@ public class ServerFacadeTests {
     @Test
     public void register() {
         AuthData auth = facade.register("username","password","email");
-        Assertions.assertNotNull();
+        Assertions.assertNotNull(auth);
+        Assertions.assertEquals("username",auth.username());
+        Assertions.assertNotNull(auth.authToken());
+    }
+
+    @Test
+    public void registerNegative() {
+        AuthData auth = facade.register(null,"password","email");
+        Assertions.assertNull(auth);
+    }
+
+    @Test
+    public void login() {
+        facade.register("username","password","email");
+        AuthData auth = facade.login("username","password");
+        Assertions.assertNotNull(auth);
+        Assertions.assertEquals("username",auth.username());
+        Assertions.assertNotNull(auth.authToken());
+    }
+
+    @Test
+    public void loginNegative() {
+        facade.register(null,"password","email");
+        AuthData auth = facade.login("username","password");
+        Assertions.assertNull(auth);
     }
 
 }

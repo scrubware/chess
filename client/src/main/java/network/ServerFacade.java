@@ -2,9 +2,11 @@ package network;
 
 import com.google.gson.Gson;
 import exceptions.AlreadyTakenException;
+import exceptions.AuthException;
 import exceptions.BadRequestException;
-import exceptions.UnknownException;
+import exceptions.InvalidAuthTokenException;
 import model.AuthData;
+import model.NetworkMessage;
 import model.UserData;
 import requests.LoginRequest;
 
@@ -14,6 +16,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
 public class ServerFacade {
 
@@ -26,66 +29,59 @@ public class ServerFacade {
         address = "http://localhost:" + port;
     }
 
-    public AuthData register(String username, String password, String email) throws URISyntaxException, IOException, InterruptedException, BadRequestException, AlreadyTakenException, UnknownException {
+    public AuthData register(String username, String password, String email) throws URISyntaxException, IOException, InterruptedException, BadRequestException, AlreadyTakenException, IllegalStateException {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new UserData(username,password,email))))
                 .uri(new URI(address + "/user"))
-                .timeout(java.time.Duration.ofMillis(5000))
+                .timeout(Duration.ofMillis(5000))
                 .build();
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (httpResponse.statusCode() == 200) {
-            return gson.fromJson(httpResponse.body(), AuthData.class);
-        }
+        return switch (httpResponse.statusCode()) {
+            case 200 -> gson.fromJson(httpResponse.body(), AuthData.class);
+            case 400 -> throw new BadRequestException();
+            case 403 -> throw new AlreadyTakenException();
+            default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
+        };
+    }
+
+    public AuthData login(String username, String password) throws URISyntaxException, IOException, InterruptedException, AuthException, IllegalStateException, BadRequestException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new LoginRequest(username,password))))
+                .uri(new URI(address + "/session"))
+                .timeout(Duration.ofMillis(5000))
+                .build();
+
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return switch (httpResponse.statusCode()) {
+            case 200 -> gson.fromJson(httpResponse.body(), AuthData.class);
+            case 400 -> throw new BadRequestException();
+            case 401 -> throw new AuthException(gson.fromJson(httpResponse.body(), NetworkMessage.class).message());
+            default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
+        };
+    }
+
+    public void logout(AuthData auth) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(new URI(address + "/session"))
+                .header("authorization", auth.authToken())
+                .timeout(Duration.ofMillis(5000))
+                .build();
+
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
         switch (httpResponse.statusCode()) {
-            case 200:
-                return gson.fromJson(httpResponse.body(), AuthData.class);
-            case 400:
-                throw new BadRequestException();
-            case 403:
-                throw new AlreadyTakenException();
+            case 200: break;
+            case 401:
+                throw new InvalidAuthTokenException();
             default:
-                throw new UnknownException();
+                throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         }
-    }
-
-    public AuthData login(String username, String password) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new LoginRequest(username,password))))
-                    .uri(new URI(address + "/session"))
-                    .timeout(java.time.Duration.ofMillis(5000))
-                    .build();
-
-            HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (httpResponse.statusCode() == 200) {
-                return gson.fromJson(httpResponse.body(), AuthData.class);
-            }
-            return null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public void logout(AuthData auth) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .DELETE()
-                    .uri(new URI(address + "/session"))
-                    .header("authorization", auth.authToken())
-                    .timeout(java.time.Duration.ofMillis(5000))
-                    .build();
-
-            HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (httpResponse.statusCode() == 200) {
-                //return gson.fromJson(httpResponse.body(), AuthData.class);
-            }
-            //return null;
-        } catch (Exception e) {
-            //return null;
+        if (httpResponse.statusCode() == 200) {
+            //return gson.fromJson(httpResponse.body(), AuthData.class);
         }
     }
 

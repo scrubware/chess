@@ -152,7 +152,7 @@ public class Main {
                         System.out.println("Seems like your username or password is malformed!");
                     } catch (AlreadyTakenException e) {
                         System.out.println("This username is already taken!");
-                    } catch (UnknownException e) {
+                    } catch (IllegalStateException e) {
                         System.out.println("Something went wrong :/");
                     }
                     break;

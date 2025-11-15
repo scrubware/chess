@@ -141,6 +141,7 @@ public class Main {
 
                     try {
                         auth = facade.register(username, password, email);
+                        System.out.println("Welcome, " + auth.username() + "!");
                     } catch (URISyntaxException e) {
                         System.out.println("Looks like something's wrong with this client :/");
                     } catch (IOException e) {

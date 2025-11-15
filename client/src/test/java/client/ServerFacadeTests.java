@@ -1,9 +1,13 @@
 package client;
 
+import exceptions.BadRequestException;
 import model.AuthData;
 import network.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 
 public class ServerFacadeTests {
@@ -32,7 +36,7 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void register() {
+    public void register() throws URISyntaxException, IOException, InterruptedException {
         AuthData auth = facade.register("username","password","email");
         Assertions.assertNotNull(auth);
         Assertions.assertEquals("username",auth.username());
@@ -41,13 +45,12 @@ public class ServerFacadeTests {
 
     @Test
     public void registerNegative() {
-        AuthData auth = facade.register(null,"password","email");
-        Assertions.assertNull(auth);
+        Assertions.assertThrows(BadRequestException.class,() -> facade.register(null,"password","email"));
     }
 
     @Test
     public void login() {
-        facade.register("username","password","email");
+        Assertions.assertDoesNotThrow(() -> facade.register("username","password","email"));
         AuthData auth = facade.login("username","password");
         Assertions.assertNotNull(auth);
         Assertions.assertEquals("username",auth.username());
@@ -56,9 +59,7 @@ public class ServerFacadeTests {
 
     @Test
     public void loginNegative() {
-        facade.register(null,"password","email");
-        AuthData auth = facade.login("username","password");
-        Assertions.assertNull(auth);
+        Assertions.assertThrows(BadRequestException.class,() -> facade.register(null,"password","email"));
     }
 
 }

@@ -15,13 +15,13 @@ public class Server {
 
     private final Javalin javalin;
 
+    private final AuthDAO authDAO = new DatabaseAuthDAO();
+    private final GameDAO gameDAO = new DatabaseGameDAO();
+    private final UserDAO userDAO = new DatabaseUserDAO();
+    private final ClearDAO clearDAO = new DatabaseClearDAO();
+
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-
-        var authDAO = new DatabaseAuthDAO();
-        var gameDAO = new DatabaseGameDAO();
-        var userDAO = new DatabaseUserDAO();
-        var clearDAO = new DatabaseClearDAO();
 
         var adminHandler = new AdminHandler(clearDAO);
         javalin.delete("/db",adminHandler::handleClear);
@@ -36,7 +36,7 @@ public class Server {
         javalin.post("/game",gameHandler::handleCreateGame);
         javalin.put("/game",gameHandler::handleJoinGame);
 
-        // Map status codes to Exception classes to avoid duplication
+        // Map status codes to Exception classes to avoid code duplication
         HashMap<Class<? extends Exception>, Integer> exceptionCodes = new HashMap<>();
         exceptionCodes.put(BadRequestException.class,400);
         exceptionCodes.put(InvalidAuthTokenException.class,401);
@@ -56,6 +56,12 @@ public class Server {
         javalin.exception(Exception.class, (e, ctx) -> {
             ctx.status(500).result("{\"message\":\"Error: internal server issue\"}");
         });
+    }
+
+    public void clear() {
+        try {
+            clearDAO.clear();
+        } catch (Exception e) {}
     }
 
     public int run(int desiredPort) {

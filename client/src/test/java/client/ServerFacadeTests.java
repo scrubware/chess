@@ -1,11 +1,14 @@
 package client;
 
+import model.AuthData;
+import network.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
 
 
 public class ServerFacadeTests {
 
+    private static ServerFacade facade;
     private static Server server;
 
     @BeforeAll
@@ -13,6 +16,7 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        facade = new ServerFacade(port);
     }
 
     @AfterAll
@@ -21,9 +25,16 @@ public class ServerFacadeTests {
     }
 
 
+    @BeforeEach
+    public void clear() {
+        server.clear();
+    }
+
+
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void register() {
+        AuthData auth = facade.register("username","password","email");
+        Assertions.assertNotNull();
     }
 
 }

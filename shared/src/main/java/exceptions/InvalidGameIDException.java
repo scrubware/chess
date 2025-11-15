@@ -1,4 +1,4 @@
-package service;
+package exceptions;
 
 public class InvalidGameIDException extends RuntimeException {
     public InvalidGameIDException() {

@@ -11,7 +11,7 @@ import dataaccess.GameDAO;
 
 import results.ListGamesResult;
 
-import service.BadRequestException;
+import exceptions.BadRequestException;
 import service.GameService;
 
 public class GameHandler {

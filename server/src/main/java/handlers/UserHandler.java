@@ -8,7 +8,7 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 
 import requests.LoginRequest;
-import service.BadRequestException;
+import exceptions.BadRequestException;
 import service.UserService;
 
 import model.AuthData;

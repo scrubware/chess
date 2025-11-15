@@ -1,6 +1,12 @@
 import chess.*;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestException;
+import exceptions.UnknownException;
 import model.AuthData;
+import network.ServerFacade;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +37,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        var facade = new ServerFacade(8080);
+
         System.out.println("♕ Welcome to this super cool Chess program!\n\n");
 
         AuthData auth = null;
@@ -50,10 +58,8 @@ public class Main {
             String input = scanner.nextLine();
             var tokens = input.split(" ");
 
-            switch (tokens[0]) {
-                case "H":
+            switch (tokens[0].toLowerCase()) {
                 case "h":
-                case "Help":
                 case "help":
 
                     if (auth != null) {
@@ -80,8 +86,6 @@ public class Main {
                     }
                     break;
                 case "e":
-                case "E":
-                case "Exit":
                 case "exit":
 
                     switch (exiting) {
@@ -98,18 +102,14 @@ public class Main {
                             break;
                     }
                     break;
-                case "N":
                 case "n":
-                case "NO":
                 case "no":
                     if (exiting == 1) {
                         System.out.println("yay!");
                     }
                     break;
-                case "Y":
                 case "y":
                 case "yes":
-                case "YES":
                     switch (exiting) {
                         case 1:
                             exitOne();
@@ -117,6 +117,42 @@ public class Main {
                         case 2:
                             exitTwo();
                             break;
+                    }
+                    break;
+                case "r":
+                case "register":
+
+                    if (tokens.length == 1) {
+                        System.out.println("You need a username, password, and email!");
+                        break;
+                    } else if (tokens.length == 2) {
+                        System.out.println("You're missing a username, password, and/or email!");
+                        break;
+                    } else if (tokens.length == 3) {
+                        System.out.println("You're missing a username, password, or email!");
+                        break;
+                    }
+
+                    var username = tokens[1];
+                    var password = tokens[2];
+                    var email = tokens[3];
+
+                    System.out.println("Trying to register...");
+
+                    try {
+                        auth = facade.register(username, password, email);
+                    } catch (URISyntaxException e) {
+                        System.out.println("Looks like something's wrong with this client :/");
+                    } catch (IOException e) {
+                        System.out.println("We're having trouble connecting to the server :/");
+                    } catch (InterruptedException e) {
+                        System.out.println("The request got interrupted :/");
+                    } catch (BadRequestException e) {
+                        System.out.println("Seems like your username or password is malformed!");
+                    } catch (AlreadyTakenException e) {
+                        System.out.println("This username is already taken!");
+                    } catch (UnknownException e) {
+                        System.out.println("Something went wrong :/");
                     }
                     break;
             }

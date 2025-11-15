@@ -1,13 +1,12 @@
 package server;
 
 import dataaccess.*;
+import exceptions.*;
 import io.javalin.*;
 
 import handlers.AdminHandler;
 import handlers.UserHandler;
 import handlers.GameHandler;
-
-import service.*;
 
 import java.util.HashMap;
 

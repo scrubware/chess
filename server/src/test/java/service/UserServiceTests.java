@@ -2,6 +2,9 @@ package service;
 
 
 import dataaccess.*;
+import exceptions.AlreadyTakenException;
+import exceptions.InvalidAuthTokenException;
+import exceptions.UserNotRegisteredException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

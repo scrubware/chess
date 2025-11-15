@@ -1,4 +1,4 @@
-package service;
+package exceptions;
 
 public class AlreadyTakenException extends RuntimeException {
     public AlreadyTakenException() {

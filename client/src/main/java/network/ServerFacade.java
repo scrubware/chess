@@ -1,11 +1,16 @@
 package network;
 
 import com.google.gson.Gson;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestException;
+import exceptions.UnknownException;
 import model.AuthData;
 import model.UserData;
 import requests.LoginRequest;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -21,22 +26,27 @@ public class ServerFacade {
         address = "http://localhost:" + port;
     }
 
-    public AuthData register(String username, String password, String email) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new UserData(username,password,email))))
-                    .uri(new URI(address + "/user"))
-                    .timeout(java.time.Duration.ofMillis(5000))
-                    .build();
+    public AuthData register(String username, String password, String email) throws URISyntaxException, IOException, InterruptedException, BadRequestException, AlreadyTakenException, UnknownException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new UserData(username,password,email))))
+                .uri(new URI(address + "/user"))
+                .timeout(java.time.Duration.ofMillis(5000))
+                .build();
 
-            HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (httpResponse.statusCode() == 200) {
+        if (httpResponse.statusCode() == 200) {
+            return gson.fromJson(httpResponse.body(), AuthData.class);
+        }
+        switch (httpResponse.statusCode()) {
+            case 200:
                 return gson.fromJson(httpResponse.body(), AuthData.class);
-            }
-            return null;
-        } catch (Exception e) {
-            return null;
+            case 400:
+                throw new BadRequestException();
+            case 403:
+                throw new AlreadyTakenException();
+            default:
+                throw new UnknownException();
         }
     }
 

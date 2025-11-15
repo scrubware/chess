@@ -6,6 +6,9 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestException;
+import exceptions.InvalidAuthTokenException;
 import model.GameData;
 import results.ListGamesResult;
 

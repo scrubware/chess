@@ -26,7 +26,6 @@ public class ServerFacade {
             HttpRequest request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new UserData(username,password,email))))
                     .uri(new URI(address + "/user"))
-                    //.header("Authorization", "secret1")
                     .timeout(java.time.Duration.ofMillis(5000))
                     .build();
 
@@ -46,7 +45,6 @@ public class ServerFacade {
             HttpRequest request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new LoginRequest(username,password))))
                     .uri(new URI(address + "/session"))
-                    //.header("Authorization", "secret1")
                     .timeout(java.time.Duration.ofMillis(5000))
                     .build();
 
@@ -73,11 +71,11 @@ public class ServerFacade {
             HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (httpResponse.statusCode() == 200) {
-                return gson.fromJson(httpResponse.body(), AuthData.class);
+                //return gson.fromJson(httpResponse.body(), AuthData.class);
             }
-            return null;
+            //return null;
         } catch (Exception e) {
-            return null;
+            //return null;
         }
     }
 

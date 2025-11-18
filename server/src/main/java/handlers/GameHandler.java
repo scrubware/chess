@@ -39,7 +39,7 @@ public class GameHandler {
 
     public void handleCreateGame(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
-        JsonElement name = gson.fromJson(ctx.body(), JsonObject.class).get("gameName");
+        JsonElement name = gson.fromJson(ctx.body(), JsonObject.class).get("gameID");
 
         if (authToken == null || name == null) {
             throw new BadRequestException();

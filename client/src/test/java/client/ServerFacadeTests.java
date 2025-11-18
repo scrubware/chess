@@ -49,7 +49,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void login() {
+    public void login() throws URISyntaxException, IOException, InterruptedException {
         Assertions.assertDoesNotThrow(() -> facade.register("username","password","email"));
         AuthData auth = facade.login("username","password");
         Assertions.assertNotNull(auth);
@@ -60,6 +60,18 @@ public class ServerFacadeTests {
     @Test
     public void loginNegative() {
         Assertions.assertThrows(BadRequestException.class,() -> facade.register(null,"password","email"));
+    }
+
+    @Test
+    public void logout() throws URISyntaxException, IOException, InterruptedException {
+        var auth = facade.register("username","password","email");
+        Assertions.assertDoesNotThrow(() -> facade.logout(auth));
+        //Assertions.assertThrows(() -> facade.login())
+    }
+
+    @Test
+    public void logoutNegative() {
+
     }
 
 }

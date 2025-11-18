@@ -9,6 +9,7 @@ import model.AuthData;
 import model.NetworkMessage;
 import model.UserData;
 import requests.LoginRequest;
+import results.CreateGameResult;
 
 import java.io.IOException;
 import java.net.URI;
@@ -74,19 +75,29 @@ public class ServerFacade {
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         switch (httpResponse.statusCode()) {
-            case 200: break;
+            case 200: return;
             case 401:
                 throw new InvalidAuthTokenException();
             default:
                 throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         }
-        if (httpResponse.statusCode() == 200) {
-            //return gson.fromJson(httpResponse.body(), AuthData.class);
-        }
     }
 
-    public void createGame() {
+    public int createGame(AuthData auth, String name) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException, IllegalStateException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + name + "\"}"))
+                .uri(new URI(address + "/game"))
+                .header("authorization", auth.authToken())
+                .timeout(Duration.ofMillis(5000))
+                .build();
 
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return switch (httpResponse.statusCode()) {
+            case 200 -> gson.fromJson(httpResponse.body(), CreateGameResult.class).gameID();
+            case 401 -> throw new InvalidAuthTokenException();
+            default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
+        };
     }
 
     public void listGames() {

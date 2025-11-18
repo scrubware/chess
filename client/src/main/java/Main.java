@@ -1,7 +1,8 @@
 import chess.*;
 import exceptions.AlreadyTakenException;
+import exceptions.AuthException;
 import exceptions.BadRequestException;
-import exceptions.UnknownException;
+import exceptions.InvalidAuthTokenException;
 import model.AuthData;
 import network.ServerFacade;
 
@@ -27,7 +28,7 @@ public class Main {
         System.out.println("alright well... if that's what you want.");
         try {
             TimeUnit.SECONDS.sleep(2);
-            System.out.println("everyone close down shop. the player's leaving");
+            System.out.println("i guess we'll just shut everything down.");
             TimeUnit.SECONDS.sleep(2);
             System.out.println("hope you come back soon!");
             TimeUnit.SECONDS.sleep(1);
@@ -85,7 +86,13 @@ public class Main {
                         System.out.println("help - looks like you figured this one out already!");
                     }
                     break;
-                case "e":
+                case "fq":
+                case "force":
+                case "forcequit":
+                    closing = true;
+                    break;
+                case "q":
+                case "quit":
                 case "exit":
 
                     switch (exiting) {
@@ -133,14 +140,14 @@ public class Main {
                         break;
                     }
 
-                    var username = tokens[1];
-                    var password = tokens[2];
-                    var email = tokens[3];
+                    var register_username = tokens[1];
+                    var register_password = tokens[2];
+                    var register_email = tokens[3];
 
                     System.out.println("Trying to register...");
 
                     try {
-                        auth = facade.register(username, password, email);
+                        auth = facade.register(register_username, register_password, register_email);
                         System.out.println("Welcome, " + auth.username() + "!");
                     } catch (URISyntaxException e) {
                         System.out.println("Looks like something's wrong with this client :/");
@@ -156,6 +163,86 @@ public class Main {
                         System.out.println("Something went wrong :/");
                     }
                     break;
+                case "l":
+                case "login":
+
+                    if (tokens.length == 1) {
+                        System.out.println("You need a username and password!");
+                        break;
+                    } else if (tokens.length == 2) {
+                        System.out.println("You're missing a username or password!");
+                        break;
+                    }
+
+                    var login_username = tokens[1];
+                    var login_password = tokens[2];
+
+                    try {
+                        auth = facade.login(login_username,login_password);
+                        System.out.println("Welcome, " + auth.username() + "!");
+                    } catch (URISyntaxException e) {
+                        System.out.println("Looks like something's wrong with this client :/");
+                    } catch (IOException e) {
+                        System.out.println("We're having trouble connecting to the server :/");
+                    } catch (InterruptedException e) {
+                        System.out.println("The request got interrupted :/");
+                    } catch (AuthException e) {
+                        System.out.println(e.getMessage());
+                    } catch (IllegalStateException e) {
+                        System.out.println("Something went wrong :/");
+                    } catch (BadRequestException e) {
+                        System.out.println("Seems like your username or password is malformed!");
+                    }
+                    break;
+                case "logout":
+
+                    if (auth == null) {
+                        System.out.println("No need! You're aren't logged in yet.");
+                        break;
+                    }
+
+                    try {
+                        facade.logout(auth);
+                    } catch (URISyntaxException e) {
+                        System.out.println("Looks like something's wrong with this client :/");
+                    } catch (IOException e) {
+                        System.out.println("We're having trouble connecting to the server :/");
+                    } catch (InterruptedException e) {
+                        System.out.println("The request got interrupted :/");
+                    }
+                    break;
+                case "c":
+                case "create":
+
+                    if (auth == null) {
+                        System.out.println("No need! You're aren't logged in yet.");
+                        break;
+                    }
+
+                    if (tokens.length == 1) {
+                        System.out.println("You must provide a game name!");
+                    }
+
+                    var gameName = tokens[1];
+
+                    try {
+                        int id = facade.createGame(auth,gameName);
+                        System.out.println("Game creation successful! The game ID is: " + id);
+                    } catch (URISyntaxException e) {
+                        System.out.println("Looks like something's wrong with this client :/");
+                    } catch (IOException e) {
+                        System.out.println("We're having trouble connecting to the server :/");
+                    } catch (InterruptedException e) {
+                        System.out.println("The request got interrupted :/");
+                    } catch (InvalidAuthTokenException e) {
+                        System.out.println("Your session is no longer valid :(");
+                        System.out.println("I'll log you out so you can log back in!");
+                        auth = null;
+                    } catch (IllegalStateException e) {
+                        System.out.println("Something went wrong :/");
+                    }
+                    break;
+
             }
 
             if (!skipResetExit) {

@@ -149,93 +149,15 @@ public class ChessBoard {
 
         if (asWhite) {
             for (int row = 9; row >= 0; row --) {
-
                 for (int col = 0; col <= 9; col ++) {
-
-                    if (row == 9 || row == 0 || col == 9 || col == 0) {
-                        out.append(uni + black + light + end);
-                    }
-
-                    if (row == 0 || row == 9) {
-                        out.append(" ");
-                        out.append(ranks.get(col));
-                        out.append(" ");
-                        continue;
-                    }
-
-                    if (col == 0 || col == 9) {
-                        out.append(" ");
-                        out.append(files.get(row));
-                        out.append(" ");
-                        continue;
-                    }
-
-                    var piece = getPiece(new ChessPosition(row, col));
-                    out.append(uni);
-
-                    if ((col + row) % 2 == 0) {
-                        out.append(black);
-                    } else {
-                        out.append(gray);
-                    }
-
-                    if (piece == null) {
-                        out.append(end + "   ");
-                    } else {
-                        if (piece.color == ChessGame.TeamColor.WHITE) {
-                            out.append(text);
-                        } else {
-                            out.append(blue);
-                        }
-                        out.append(end + " " + piece + " ");
-                    }
-
+                    toStringInner(uni, black, gray, blue, text, light, end, ranks, files, out, row, col);
                 }
                 out.append(uni + back + text + end + "\n");
             }
         } else {
             for (int row = 0; row <= 9; row ++) {
-
                 for (int col = 9; col >= 0; col --) {
-
-                    if (row == 9 || row == 0 || col == 9 || col == 0) {
-                        out.append(uni + black + light + end);
-                    }
-
-                    if (row == 0 || row == 9) {
-                        out.append(" ");
-                        out.append(ranks.get(col));
-                        out.append(" ");
-                        continue;
-                    }
-
-                    if (col == 0 || col == 9) {
-                        out.append(" ");
-                        out.append(files.get(row));
-                        out.append(" ");
-                        continue;
-                    }
-
-                    var piece = getPiece(new ChessPosition(row, col));
-                    out.append(uni);
-
-                    if ((col + row) % 2 == 0) {
-                        out.append(black);
-                    } else {
-                        out.append(gray);
-                    }
-
-                    if (piece == null) {
-                        out.append(end + "   ");
-                    } else {
-                        if (piece.color == ChessGame.TeamColor.WHITE) {
-                            out.append(text);
-                        } else {
-                            out.append(blue);
-                        }
-                        out.append(end + " " + piece + " ");
-                    }
-
+                    toStringInner(uni, black, gray, blue, text, light, end, ranks, files, out, row, col);
                 }
                 out.append(uni + back + text + end + "\n");
             }
@@ -244,6 +166,46 @@ public class ChessBoard {
         out.append(uni + back + text + "m");
 
         return out.toString();
+    }
+
+    private void toStringInner(String uni, String black, String gray, String blue, String text, String light, String end, ArrayList<String> ranks, ArrayList<String> files, StringBuilder out, int row, int col) {
+        if (row == 9 || row == 0 || col == 9 || col == 0) {
+            out.append(uni + black + light + end);
+        }
+
+        if (row == 0 || row == 9) {
+            out.append(" ");
+            out.append(ranks.get(col));
+            out.append(" ");
+            return;
+        }
+
+        if (col == 0 || col == 9) {
+            out.append(" ");
+            out.append(files.get(row));
+            out.append(" ");
+            return;
+        }
+
+        var piece = getPiece(new ChessPosition(row, col));
+        out.append(uni);
+
+        if ((col + row) % 2 == 0) {
+            out.append(black);
+        } else {
+            out.append(gray);
+        }
+
+        if (piece == null) {
+            out.append(end + "   ");
+        } else {
+            if (piece.color == ChessGame.TeamColor.WHITE) {
+                out.append(text);
+            } else {
+                out.append(blue);
+            }
+            out.append(end + " " + piece + " ");
+        }
     }
 
     @Override

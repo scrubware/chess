@@ -1,6 +1,5 @@
 package network;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.*;
 import model.AuthData;
@@ -23,8 +22,8 @@ import java.util.Collection;
 
 public class ServerFacade {
 
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
-    private static final Gson gson = new Gson();
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    private static final Gson GSON = new Gson();
 
     private final String address;
 
@@ -32,41 +31,44 @@ public class ServerFacade {
         address = "http://localhost:" + port;
     }
 
-    public AuthData register(String username, String password, String email) throws URISyntaxException, IOException, InterruptedException, BadRequestException, AlreadyTakenException, IllegalStateException {
+    public AuthData register(String username, String password, String email) throws URISyntaxException,
+            IOException, InterruptedException, BadRequestException, AlreadyTakenException, IllegalStateException {
         HttpRequest request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new UserData(username,password,email))))
+                .POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(new UserData(username,password,email))))
                 .uri(new URI(address + "/user"))
                 .timeout(Duration.ofMillis(5000))
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         return switch (httpResponse.statusCode()) {
-            case 200 -> gson.fromJson(httpResponse.body(), AuthData.class);
+            case 200 -> GSON.fromJson(httpResponse.body(), AuthData.class);
             case 400 -> throw new BadRequestException();
             case 403 -> throw new AlreadyTakenException();
             default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         };
     }
 
-    public AuthData login(String username, String password) throws URISyntaxException, IOException, InterruptedException, AuthException, IllegalStateException, BadRequestException {
+    public AuthData login(String username, String password) throws URISyntaxException, IOException,
+            InterruptedException, AuthException, IllegalStateException, BadRequestException {
         HttpRequest request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new LoginRequest(username,password))))
+                .POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(new LoginRequest(username,password))))
                 .uri(new URI(address + "/session"))
                 .timeout(Duration.ofMillis(5000))
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         return switch (httpResponse.statusCode()) {
-            case 200 -> gson.fromJson(httpResponse.body(), AuthData.class);
+            case 200 -> GSON.fromJson(httpResponse.body(), AuthData.class);
             case 400 -> throw new BadRequestException();
-            case 401 -> throw new AuthException(gson.fromJson(httpResponse.body(), NetworkMessage.class).message());
+            case 401 -> throw new AuthException(GSON.fromJson(httpResponse.body(), NetworkMessage.class).message());
             default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         };
     }
 
-    public void logout(AuthData auth) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException {
+    public void logout(AuthData auth) throws URISyntaxException, IOException, InterruptedException,
+            InvalidAuthTokenException {
         HttpRequest request = HttpRequest.newBuilder()
                 .DELETE()
                 .uri(new URI(address + "/session"))
@@ -74,7 +76,7 @@ public class ServerFacade {
                 .timeout(Duration.ofMillis(5000))
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         switch (httpResponse.statusCode()) {
             case 200: return;
@@ -85,7 +87,8 @@ public class ServerFacade {
         }
     }
 
-    public int createGame(AuthData auth, String name) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException, IllegalStateException, BadRequestException {
+    public int createGame(AuthData auth, String name) throws URISyntaxException, IOException,
+            InterruptedException, InvalidAuthTokenException, IllegalStateException, BadRequestException {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString("{\"gameName\":\"" + name + "\"}"))
                 .uri(new URI(address + "/game"))
@@ -93,17 +96,18 @@ public class ServerFacade {
                 .timeout(Duration.ofMillis(5000))
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         return switch (httpResponse.statusCode()) {
-            case 200 -> gson.fromJson(httpResponse.body(), CreateGameResult.class).gameID();
+            case 200 -> GSON.fromJson(httpResponse.body(), CreateGameResult.class).gameID();
             case 400 -> throw new BadRequestException();
             case 401 -> throw new InvalidAuthTokenException();
             default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         };
     }
 
-    public Collection<GameData> listGames(AuthData auth) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException, IllegalStateException {
+    public Collection<GameData> listGames(AuthData auth) throws URISyntaxException, IOException,
+            InterruptedException, InvalidAuthTokenException, IllegalStateException {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(address + "/game"))
@@ -111,24 +115,25 @@ public class ServerFacade {
                 .timeout(Duration.ofMillis(5000))
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         return switch (httpResponse.statusCode()) {
-            case 200 -> gson.fromJson(httpResponse.body(), ListGamesResult.class).games();
+            case 200 -> GSON.fromJson(httpResponse.body(), ListGamesResult.class).games();
             case 401 -> throw new InvalidAuthTokenException();
             default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         };
     }
 
-    public void joinGame(AuthData auth, String color, int gameID) throws URISyntaxException, IOException, InterruptedException, InvalidGameIDException {
+    public void joinGame(AuthData auth, String color, int gameID) throws URISyntaxException,
+            IOException, InterruptedException, InvalidGameIDException {
         HttpRequest request = HttpRequest.newBuilder()
-                .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(new JoinGameRequest(color,gameID))))
+                .PUT(HttpRequest.BodyPublishers.ofString(GSON.toJson(new JoinGameRequest(color,gameID))))
                 .uri(new URI(address + "/game"))
                 .header("authorization", auth.authToken())
                 .timeout(Duration.ofMillis(5000))
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         switch (httpResponse.statusCode()) {
             case 200: return;

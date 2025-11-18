@@ -168,7 +168,9 @@ public class ChessBoard {
         return out.toString();
     }
 
-    private void toStringInner(String uni, String black, String gray, String blue, String text, String light, String end, ArrayList<String> ranks, ArrayList<String> files, StringBuilder out, int row, int col) {
+    private void toStringInner(String uni, String black, String gray, String blue, String text,
+                               String light, String end, ArrayList<String> ranks, ArrayList<String> files,
+                               StringBuilder out, int row, int col) {
         if (row == 9 || row == 0 || col == 9 || col == 0) {
             out.append(uni + black + light + end);
         }

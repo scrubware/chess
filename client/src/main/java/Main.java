@@ -41,26 +41,19 @@ public class Main {
         var facade = new ServerFacade(8080);
 
         System.out.println("♕ Welcome to this super cool Chess program!\n\n");
-
         AuthData auth = null;
-
         System.out.println("Type 'help' if you're just getting started!");
-
         Scanner scanner = new Scanner(System.in);
-
         ArrayList<GameData> gamesList = null;
 
         while (true) {
-
             if (auth != null) {
                 System.out.print("[" + auth.username() + "] >>> ");
             } else {
                 System.out.print("[Unauthenticated] >>> ");
             }
-
             String input = scanner.nextLine();
             var tokens = input.split(" ");
-
             switch (tokens[0].toLowerCase()) {
                 case "h":
                 case "help":
@@ -74,7 +67,6 @@ public class Main {
                 case "q":
                 case "quit":
                 case "exit":
-
                     switch (exiting) {
                         case 0:
                             System.out.println("you really want to go? :(");
@@ -134,11 +126,9 @@ public class Main {
                     handleObserve(auth, tokens, gamesList);
                     break;
             }
-
             if (!skipResetExit) {
                 exiting = 0;
             }
-
             if (closing) {
                 break;
             }

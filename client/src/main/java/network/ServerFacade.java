@@ -87,7 +87,7 @@ public class ServerFacade {
 
     public int createGame(AuthData auth, String name) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException, IllegalStateException, BadRequestException {
         HttpRequest request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + name + "\"}"))
+                .POST(HttpRequest.BodyPublishers.ofString("{\"gameName\":\"" + name + "\"}"))
                 .uri(new URI(address + "/game"))
                 .header("authorization", auth.authToken())
                 .timeout(Duration.ofMillis(5000))

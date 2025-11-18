@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -105,31 +106,156 @@ public class ChessBoard {
         return Arrays.deepHashCode(board);
     }
 
-    @Override
-    public String toString() {
-
+    private String toStringCommon(boolean asWhite) {
         var uni = "\u001b[";
-        var black = "40";
-        var gray = "100";
-        var cyan = "36";
-        var magenta = "35";
+        var black = "40;";
+        var gray = "100;";
+        var blue = "34;";
+        var text = "39;";
+        var back = "49;";
+        var light = "37;";
         var end = "1m";
 
-        StringBuilder out = new StringBuilder();
-        for (int row = 8; row >= 1; row --) {
-            out.append("|");
-            for (int col = 1; col <= 8; col ++) {
-                var piece = getPiece(new ChessPosition(row, col));
-                if (piece == null) {
-                    out.append(" |");
-                } else {
-                    out.append(piece).append("|");
-                }
+        var ranks = new ArrayList<String>();
+        ranks.add(" ");
+        ranks.add("a");
+        ranks.add("b");
+        ranks.add("c");
+        ranks.add("d");
+        ranks.add("e");
+        ranks.add("f");
+        ranks.add("g");
+        ranks.add("h");
+        ranks.add(" ");
 
-            }
-            out.append("\n");
+        var files = new ArrayList<String>();
+        files.add(" ");
+        files.add("1");
+        files.add("2");
+        files.add("3");
+        files.add("4");
+        files.add("5");
+        files.add("6");
+        files.add("7");
+        files.add("8");
+        files.add(" ");
+
+
+        if (asWhite) {
+
         }
 
+        StringBuilder out = new StringBuilder();
+
+        if (asWhite) {
+            for (int row = 9; row >= 0; row --) {
+
+                for (int col = 0; col <= 9; col ++) {
+
+                    if (row == 9 || row == 0 || col == 9 || col == 0) {
+                        out.append(uni + black + light + end);
+                    }
+
+                    if (row == 0 || row == 9) {
+                        out.append(" ");
+                        out.append(ranks.get(col));
+                        out.append(" ");
+                        continue;
+                    }
+
+                    if (col == 0 || col == 9) {
+                        out.append(" ");
+                        out.append(files.get(row));
+                        out.append(" ");
+                        continue;
+                    }
+
+                    var piece = getPiece(new ChessPosition(row, col));
+                    out.append(uni);
+
+                    if ((col + row) % 2 == 0) {
+                        out.append(black);
+                    } else {
+                        out.append(gray);
+                    }
+
+                    if (piece == null) {
+                        out.append(end + "   ");
+                    } else {
+                        if (piece.color == ChessGame.TeamColor.WHITE) {
+                            out.append(text);
+                        } else {
+                            out.append(blue);
+                        }
+                        out.append(end + " " + piece + " ");
+                    }
+
+                }
+                out.append(uni + back + text + end + "\n");
+            }
+        } else {
+            for (int row = 0; row <= 9; row ++) {
+
+                for (int col = 9; col >= 0; col --) {
+
+                    if (row == 9 || row == 0 || col == 9 || col == 0) {
+                        out.append(uni + black + light + end);
+                    }
+
+                    if (row == 0 || row == 9) {
+                        out.append(" ");
+                        out.append(ranks.get(col));
+                        out.append(" ");
+                        continue;
+                    }
+
+                    if (col == 0 || col == 9) {
+                        out.append(" ");
+                        out.append(files.get(row));
+                        out.append(" ");
+                        continue;
+                    }
+
+                    var piece = getPiece(new ChessPosition(row, col));
+                    out.append(uni);
+
+                    if ((col + row) % 2 == 0) {
+                        out.append(black);
+                    } else {
+                        out.append(gray);
+                    }
+
+                    if (piece == null) {
+                        out.append(end + "   ");
+                    } else {
+                        if (piece.color == ChessGame.TeamColor.WHITE) {
+                            out.append(text);
+                        } else {
+                            out.append(blue);
+                        }
+                        out.append(end + " " + piece + " ");
+                    }
+
+                }
+                out.append(uni + back + text + end + "\n");
+            }
+        }
+
+        out.append(uni + back + text + "m");
+
         return out.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toStringCommon(true);
+    }
+
+    public String toStringWhite() {
+        return toString();
+    }
+
+    public String toStringBlack() {
+        return toStringCommon(false);
     }
 }

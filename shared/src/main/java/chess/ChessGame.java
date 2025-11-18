@@ -53,9 +53,12 @@ public class ChessGame {
         return result;
     }
 
-    @Override
-    public String toString() {
-        return board.toString();
+    public String toStringWhite() {
+        return board.toStringWhite();
+    }
+
+    public String toStringBlack() {
+        return board.toStringBlack();
     }
 
     /**

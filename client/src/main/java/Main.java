@@ -242,8 +242,8 @@ public class Main {
                     var gameName = tokens[1];
 
                     try {
-                        int id = facade.createGame(auth,gameName);
-                        System.out.println("Game creation successful! The game ID is: " + id);
+                        facade.createGame(auth,gameName);
+                        System.out.println("Game creation successful! Use the \"list\" command to find the game #!");
                     } catch (URISyntaxException e) {
                         System.out.println("Looks like something's wrong with this client :/");
                     } catch (IOException e) {
@@ -367,7 +367,11 @@ public class Main {
                         facade.joinGame(auth,colorString,game.gameID());
                         System.out.println("Joined!\n");
 
-                        System.out.println(game.game());
+                        if (colorString.equals("WHITE")) {
+                            System.out.println(game.game().toStringWhite());
+                        } else {
+                            System.out.println(game.game().toStringBlack());
+                        }
                     } catch (URISyntaxException e) {
                         System.out.println("Looks like something's wrong with this client :/");
                     } catch (IOException e) {

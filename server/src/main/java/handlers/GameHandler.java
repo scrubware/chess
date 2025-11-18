@@ -41,7 +41,7 @@ public class GameHandler {
         String authToken = ctx.header("authorization");
         JsonElement name = gson.fromJson(ctx.body(), JsonObject.class).get("gameID");
 
-        if (authToken == null || name == null) {
+        if (authToken == null || name == null || name.getAsString().isEmpty()) {
             throw new BadRequestException();
         }
 

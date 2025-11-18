@@ -1,8 +1,5 @@
 import chess.*;
-import exceptions.AlreadyTakenException;
-import exceptions.AuthException;
-import exceptions.BadRequestException;
-import exceptions.InvalidAuthTokenException;
+import exceptions.*;
 import model.AuthData;
 import model.GameData;
 import network.ServerFacade;
@@ -384,6 +381,9 @@ public class Main {
                         auth = null;
                     } catch (IllegalStateException e) {
                         System.out.println("Something went wrong :/");
+                    } catch (InvalidGameIDException e) {
+                        System.out.println("This game is not available anymore :/");
+                        System.out.println("Try fetching the available games again with \"list\"!");
                     }
 
                     break;

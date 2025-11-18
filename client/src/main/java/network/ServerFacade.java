@@ -2,10 +2,7 @@ package network;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import exceptions.AlreadyTakenException;
-import exceptions.AuthException;
-import exceptions.BadRequestException;
-import exceptions.InvalidAuthTokenException;
+import exceptions.*;
 import model.AuthData;
 import model.GameData;
 import model.NetworkMessage;
@@ -88,7 +85,7 @@ public class ServerFacade {
         }
     }
 
-    public int createGame(AuthData auth, String name) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException, IllegalStateException {
+    public int createGame(AuthData auth, String name) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException, IllegalStateException, BadRequestException {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + name + "\"}"))
                 .uri(new URI(address + "/game"))
@@ -100,6 +97,7 @@ public class ServerFacade {
 
         return switch (httpResponse.statusCode()) {
             case 200 -> gson.fromJson(httpResponse.body(), CreateGameResult.class).gameID();
+            case 400 -> throw new BadRequestException();
             case 401 -> throw new InvalidAuthTokenException();
             default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         };
@@ -122,7 +120,7 @@ public class ServerFacade {
         };
     }
 
-    public void joinGame(AuthData auth, String color, int gameID) throws URISyntaxException, IOException, InterruptedException {
+    public void joinGame(AuthData auth, String color, int gameID) throws URISyntaxException, IOException, InterruptedException, InvalidGameIDException {
         HttpRequest request = HttpRequest.newBuilder()
                 .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(new JoinGameRequest(color,gameID))))
                 .uri(new URI(address + "/game"))
@@ -135,6 +133,7 @@ public class ServerFacade {
         switch (httpResponse.statusCode()) {
             case 200: return;
             case 401: throw new InvalidAuthTokenException();
+            case 500: throw new InvalidGameIDException();
             default: throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         }
     }

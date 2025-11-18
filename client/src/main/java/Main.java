@@ -387,6 +387,35 @@ public class Main {
                     }
 
                     break;
+                case "o":
+                case "observe":
+
+                    if (auth == null) {
+                        System.out.println("You gotta log in first!");
+                        break;
+                    }
+
+                    if (tokens.length == 1) {
+                        System.out.println("You must provide a game #");
+                        break;
+                    }
+
+                    if (gamesList == null) {
+                        System.out.println("Use the 'list' command to see the options first! Jeez!");
+                        break;
+                    }
+
+                    int observeNum = Integer.parseInt(tokens[1]);
+
+                    if (observeNum > gamesList.size() || observeNum < 0) {
+                        System.out.println("That's not a real game #. Nice try bucko.");
+                        break;
+                    }
+
+                    GameData observeGame = gamesList.get(observeNum);
+
+                    System.out.println(observeGame.game().toStringWhite());
+                    break;
             }
 
             if (!skipResetExit) {

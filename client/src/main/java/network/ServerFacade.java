@@ -138,8 +138,4 @@ public class ServerFacade {
             default: throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         }
     }
-
-    public void observeGame() {
-
-    }
 }

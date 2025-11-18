@@ -1,15 +1,19 @@
 package network;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.AlreadyTakenException;
 import exceptions.AuthException;
 import exceptions.BadRequestException;
 import exceptions.InvalidAuthTokenException;
 import model.AuthData;
+import model.GameData;
 import model.NetworkMessage;
 import model.UserData;
+import requests.JoinGameRequest;
 import requests.LoginRequest;
 import results.CreateGameResult;
+import results.ListGamesResult;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,6 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Collection;
 
 public class ServerFacade {
 
@@ -100,11 +105,38 @@ public class ServerFacade {
         };
     }
 
-    public void listGames() {
+    public Collection<GameData> listGames(AuthData auth) throws URISyntaxException, IOException, InterruptedException, InvalidAuthTokenException, IllegalStateException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(new URI(address + "/game"))
+                .header("authorization", auth.authToken())
+                .timeout(Duration.ofMillis(5000))
+                .build();
 
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return switch (httpResponse.statusCode()) {
+            case 200 -> gson.fromJson(httpResponse.body(), ListGamesResult.class).games();
+            case 401 -> throw new InvalidAuthTokenException();
+            default -> throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
+        };
     }
 
-    public void joinGame() {
+    public void joinGame(AuthData auth, String color, int gameID) throws URISyntaxException, IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(new JoinGameRequest(color,gameID))))
+                .uri(new URI(address + "/game"))
+                .header("authorization", auth.authToken())
+                .timeout(Duration.ofMillis(5000))
+                .build();
+
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        switch (httpResponse.statusCode()) {
+            case 200: return;
+            case 401: throw new InvalidAuthTokenException();
+            default: throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
+        }
     }
 
     public void observeGame() {

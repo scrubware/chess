@@ -108,6 +108,13 @@ public class ChessBoard {
     @Override
     public String toString() {
 
+        var uni = "\u001b[";
+        var black = "40";
+        var gray = "100";
+        var cyan = "36";
+        var magenta = "35";
+        var end = "1m";
+
         StringBuilder out = new StringBuilder();
         for (int row = 8; row >= 1; row --) {
             out.append("|");

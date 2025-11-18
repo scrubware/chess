@@ -4,10 +4,13 @@ import exceptions.AuthException;
 import exceptions.BadRequestException;
 import exceptions.InvalidAuthTokenException;
 import model.AuthData;
+import model.GameData;
 import network.ServerFacade;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +51,8 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
+        ArrayList<GameData> gamesList = null;
+
         while (true) {
 
             if (auth != null) {
@@ -66,8 +71,8 @@ public class Main {
                     if (auth != null) {
                         System.out.println("create [game name] - makes a new public game");
                         System.out.println("list - shows you all the public game IDs");
-                        System.out.println("join [game id] [\"white\" or \"black\"] - joins an existing game");
-                        System.out.println("observe [game id] - stalk someone else's game");
+                        System.out.println("join [game #] [\"white\" or \"black\"] - joins an existing game");
+                        System.out.println("observe [game #] - stalk someone else's game");
                         System.out.println("logout - this logs you out");
                     } else {
                         System.out.println("register [username] [password] [email] - makes an account");
@@ -84,6 +89,10 @@ public class Main {
                         System.out.println("in there. for fun i guess?");
                     } else {
                         System.out.println("help - looks like you figured this one out already!");
+                    }
+
+                    if (auth == null) {
+                        System.out.println("of course, there are a bunch more things you can do once you're logged in!");
                     }
                     break;
                 case "fq":
@@ -174,6 +183,12 @@ public class Main {
                         break;
                     }
 
+                    if (auth != null) {
+                        System.out.println("You are already logged in, actually!");
+                        System.out.println("Please log out first if you're desperate to login again.");
+                        break;
+                    }
+
                     var login_username = tokens[1];
                     var login_password = tokens[2];
 
@@ -203,6 +218,7 @@ public class Main {
 
                     try {
                         facade.logout(auth);
+                        auth = null;
                     } catch (URISyntaxException e) {
                         System.out.println("Looks like something's wrong with this client :/");
                     } catch (IOException e) {
@@ -215,7 +231,7 @@ public class Main {
                 case "create":
 
                     if (auth == null) {
-                        System.out.println("No need! You're aren't logged in yet.");
+                        System.out.println("You gotta log in first!");
                         break;
                     }
 
@@ -242,7 +258,131 @@ public class Main {
                         System.out.println("Something went wrong :/");
                     }
                     break;
+                case "list":
 
+                    if (auth == null) {
+                        System.out.println("You gotta log in first!");
+                        break;
+                    }
+
+                    try {
+                        Collection<GameData> games = facade.listGames(auth);
+                        System.out.println("Here are all the current games:");
+
+                        gamesList = new ArrayList<>();
+
+                        int num = 0;
+                        for (GameData entry : games) {
+                            gamesList.add(entry);
+                            String out = "  " + num + ". " + entry.gameName();
+
+                            if (entry.whiteUsername() == null && entry.blackUsername() == null) {
+                                out = out + "    no one has joined this game yet!";
+                            } else {
+                                if (entry.whiteUsername() != null) {
+                                    out = out + "    playing as white: " + entry.whiteUsername();
+                                }
+
+                                if (entry.blackUsername() != null) {
+                                    out = out + "    playing as black: " + entry.blackUsername();
+                                }
+
+                                if (entry.whiteUsername() == null) {
+                                    out = out + "    WHITE is available!";
+                                }
+
+                                if (entry.blackUsername() == null) {
+                                    out = out + "    BLACK is available!";
+                                }
+                            }
+
+                            System.out.println(out);
+                            num += 1;
+                        }
+                    } catch (URISyntaxException e) {
+                        System.out.println("Looks like something's wrong with this client :/");
+                    } catch (IOException e) {
+                        System.out.println("We're having trouble connecting to the server :/");
+                    } catch (InterruptedException e) {
+                        System.out.println("The request got interrupted :/");
+                    } catch (InvalidAuthTokenException e) {
+                        System.out.println("Your session is no longer valid :(");
+                        System.out.println("I'll log you out so you can log back in!");
+                        auth = null;
+                    } catch (IllegalStateException e) {
+                        System.out.println("Something went wrong :/");
+                    }
+                    break;
+                case "j":
+                case "p":
+                case "play":
+                case "join":
+
+                    if (auth == null) {
+                        System.out.println("You gotta log in first!");
+                        break;
+                    }
+
+                    if (tokens.length == 1) {
+                        System.out.println("You must provide a game # and \"WHITE\" for white or \"BLACK\" for black");
+                        break;
+                    }
+
+                    if (tokens.length == 2) {
+                        System.out.println("You must specify \"WHITE\" for white or \"BLACK\" for black");
+                        break;
+                    }
+
+                    if (gamesList == null) {
+                        System.out.println("Use the 'list' command to see the options first! Jeez!");
+                        break;
+                    }
+
+
+                    int num = Integer.parseInt(tokens[1]);
+                    var colorString = tokens[2];
+
+                    if (num > gamesList.size() || num < 0) {
+                        System.out.println("That's not a real game #. Nice try bucko.");
+                        break;
+                    }
+
+                    if (!Objects.equals(colorString, "WHITE") && !Objects.equals(colorString, "BLACK")) {
+                        System.out.println("Make sure your team color is \"WHITE\" for white or \"BLACK\" for black");
+                        break;
+                    }
+
+                    GameData game = gamesList.get(num);
+
+                    if (colorString.equals("WHITE") && game.whiteUsername() != null) {
+                        System.out.println("White is already taken in this game, sorry.");
+                        break;
+                    } else if (colorString.equals("BLACK") && game.blackUsername() != null) {
+                        System.out.println("Black is already taken in this game, sorry.");
+                        break;
+                    }
+
+                    try {
+                        System.out.println("Trying to join...");
+                        facade.joinGame(auth,colorString,game.gameID());
+                        System.out.println("Joined!\n");
+
+                        System.out.println(game.game());
+                    } catch (URISyntaxException e) {
+                        System.out.println("Looks like something's wrong with this client :/");
+                    } catch (IOException e) {
+                        System.out.println("We're having trouble connecting to the server :/");
+                    } catch (InterruptedException e) {
+                        System.out.println("The request got interrupted :/");
+                    } catch (InvalidAuthTokenException e) {
+                        System.out.println("Your session is no longer valid :(");
+                        System.out.println("I'll log you out so you can log back in!");
+                        auth = null;
+                    } catch (IllegalStateException e) {
+                        System.out.println("Something went wrong :/");
+                    }
+
+                    break;
             }
 
             if (!skipResetExit) {

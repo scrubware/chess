@@ -415,7 +415,7 @@ public class Main {
         }
         var colorString = tokens[2];
 
-        if (num > gamesList.size() || num < 0) {
+        if (num >= gamesList.size() || num < 0) {
             System.out.println("That's not a real game #. Nice try bucko.");
             return auth;
         }

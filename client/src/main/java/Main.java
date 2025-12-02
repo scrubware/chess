@@ -46,6 +46,8 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         ArrayList<GameData> gamesList = null;
 
+
+
         while (true) {
             if (auth != null) {
                 System.out.print("[" + auth.username() + "] >>> ");

@@ -35,6 +35,15 @@ public class Server {
         javalin.post("/game",gameHandler::handleCreateGame);
         javalin.put("/game",gameHandler::handleJoinGame);
 
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(ctx -> {
+                ctx.enableAutomaticPings();
+                System.out.println("Websocket connected");
+            });
+            ws.onMessage(ctx -> ctx.send("WebSocket response:" + ctx.message()));
+            ws.onClose(_ -> System.out.println("Websocket closed"));
+        });
+
         // Map status codes to Exception classes to avoid code duplication
         HashMap<Class<? extends Exception>, Integer> exceptionCodes = new HashMap<>();
         exceptionCodes.put(BadRequestException.class,400);

@@ -101,6 +101,8 @@ public class Client {
                 auth = null;
             } catch (IllegalStateException e) {
                 System.out.println("Something went wrong :/");
+            } catch (AuthException e) {
+                System.out.println("That user isn't registered!");
             } catch (BadRequestException e) {
                 System.out.println("Seems like your username or password is malformed!");
             } catch (AlreadyTakenException e) {
@@ -253,7 +255,7 @@ public class Client {
         }
     }
 
-    private void handleLogin(String[] tokens) throws URISyntaxException, IOException, InterruptedException {
+    private void handleLogin(String[] tokens) throws URISyntaxException, IOException, InterruptedException, AuthException {
         if (tokens.length == 1) {
             System.out.println("You need a username and password!");
             return;

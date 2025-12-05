@@ -23,8 +23,6 @@ public class WebSocketFacade extends Endpoint {
 
     }
 
-
-
     public void connect() throws DeploymentException, IOException, URISyntaxException {
         URI uri = new URI(address);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -32,22 +30,7 @@ public class WebSocketFacade extends Endpoint {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
 
-                switch (command.getCommandType()) {
-                    case CONNECT -> {
-
-                    }
-                    case MAKE_MOVE -> {
-                        ChessMove move = gson.fromJson(message, MakeMoveCommand.class).getMove();
-                    }
-                    case LEAVE -> {
-
-                    }
-                    case RESIGN -> {
-
-                    }
-                }
             }
         });
     }

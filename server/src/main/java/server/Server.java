@@ -1,12 +1,16 @@
 package server;
 
+import chess.ChessMove;
 import dataaccess.*;
 import exceptions.*;
+import handlers.WebSocketHandler;
 import io.javalin.*;
 
 import handlers.AdminHandler;
 import handlers.UserHandler;
 import handlers.GameHandler;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
 
 import java.util.HashMap;
 
@@ -23,25 +27,24 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         var adminHandler = new AdminHandler(clearDAO);
+        var userHandler = new UserHandler(authDAO,userDAO);
+        var gameHandler = new GameHandler(authDAO,gameDAO);
+        var socketHandler = new WebSocketHandler();
+
         javalin.delete("/db",adminHandler::handleClear);
 
-        var userHandler = new UserHandler(authDAO, userDAO);
         javalin.post("/user",userHandler::handleRegister);
         javalin.post("/session",userHandler::handleLogin);
         javalin.delete("/session",userHandler::handleLogout);
 
-        var gameHandler = new GameHandler(authDAO,gameDAO);
         javalin.get("/game",gameHandler::handleListGames);
         javalin.post("/game",gameHandler::handleCreateGame);
         javalin.put("/game",gameHandler::handleJoinGame);
 
         javalin.ws("/ws", ws -> {
-            ws.onConnect(ctx -> {
-                ctx.enableAutomaticPings();
-                System.out.println("Websocket connected");
-            });
-            ws.onMessage(ctx -> ctx.send("WebSocket response:" + ctx.message()));
-            ws.onClose(_ -> System.out.println("Websocket closed"));
+            ws.onConnect(socketHandler);
+            ws.onMessage(socketHandler);
+            ws.onClose(socketHandler);
         });
 
         // Map status codes to Exception classes to avoid code duplication

@@ -1,6 +1,5 @@
 package server;
 
-import chess.ChessMove;
 import dataaccess.*;
 import exceptions.*;
 import handlers.WebSocketHandler;
@@ -9,8 +8,6 @@ import io.javalin.*;
 import handlers.AdminHandler;
 import handlers.UserHandler;
 import handlers.GameHandler;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
 
 import java.util.HashMap;
 

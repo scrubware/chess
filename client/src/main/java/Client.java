@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -88,6 +87,7 @@ public class Client {
                     case "list" -> handleList();
                     case "j", "join", "p", "play" -> handleJoin(tokens);
                     case "o", "observe" -> handleObserve(tokens);
+                    case "redraw" -> drawBoard();
                 }
             } catch (URISyntaxException e) {
                 System.out.println("Looks like something's wrong with this client :/");
@@ -118,6 +118,14 @@ public class Client {
                 exiting = 0;
             }
         } while (!closing);
+    }
+
+    private void drawBoard() {
+        if (teamColor == ChessGame.TeamColor.BLACK) {
+            System.out.println(game.game().toStringBlack());
+        } else { // This covers also the null case where the user is observing.
+            System.out.println(game.game().toStringBlack());
+        }
     }
 
     private void handleNo() {
@@ -225,34 +233,39 @@ public class Client {
     }
 
     private void handleHelp() {
+
+        System.out.println();
+
         if (game != null) {
             System.out.println("redraw - redraws the board");
             System.out.println("leave - exit the game (does not forfeit)");
-            System.out.println("move [from row-column] [to row-column] - move a chess piece (ex. move a2 a4)");
+            System.out.println("move [from row-column] [to row-column] - move a chess piece");
             System.out.println("resign - forfeit the game");
             System.out.println("legal [row-column] - highlight legal moves for a piece");
 
-            System.out.println("\nUse the letter of the row and the number of the column for your moves,");
-            System.out.println("i.e. 'move a2 a4' or 'legal g1'");
+            System.out.println("\nUse the letter of the row and the number of the column for commands");
+            System.out.println("for instance, 'move a2 a4' or 'legal g1'");
             return;
-        }
-
-        if (auth != null) {
-            System.out.println("create [game name] - makes a new public game");
-            System.out.println("list - shows you all the public game IDs");
-            System.out.println("join [game #] [\"white\" or \"black\"] - joins an existing game");
-            System.out.println("observe [game #] - stalk someone else's game");
-            System.out.println("logout - this logs you out");
         } else {
-            System.out.println("register [username] [password] [email] - makes an account");
-            System.out.println("login [username] [password] - logs into an existing account");
-        }
-        System.out.println("quit - kinda does what you'd expect");
-        System.out.println("help - looks like you figured this one out already!");
+            if (auth != null) {
+                System.out.println("create [game name] - makes a new public game");
+                System.out.println("list - shows you all the public game IDs");
+                System.out.println("join [game #] [\"white\" or \"black\"] - joins an existing game");
+                System.out.println("observe [game #] - stalk someone else's game");
+                System.out.println("logout - this logs you out");
+            } else {
+                System.out.println("register [username] [password] [email] - makes an account");
+                System.out.println("login [username] [password] - logs into an existing account");
+            }
+            System.out.println("quit - kinda does what you'd expect");
+            System.out.println("help - looks like you figured this one out already!");
 
-        if (auth == null) {
-            System.out.println("of course, there are a bunch more things you can do once you're logged in!");
+            if (auth == null) {
+                System.out.println("\n\nof course, there are a bunch more things you can do once you're logged in!");
+            }
         }
+
+        System.out.println();
     }
 
     private void handleLogin(String[] tokens) throws URISyntaxException, IOException, InterruptedException, AuthException {
@@ -386,10 +399,6 @@ public class Client {
         ws.connect();
         System.out.println("Joined!\n");
 
-        if (teamColor == ChessGame.TeamColor.WHITE) {
-            System.out.println(game.game().toStringWhite());
-        } else {
-            System.out.println(game.game().toStringBlack());
-        }
+        drawBoard();
     }
 }

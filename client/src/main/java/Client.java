@@ -36,7 +36,6 @@ public class Client {
         ws = new WebSocketFacade(port);
     }
 
-
     private void exitOne() {
         System.out.println("we're all gonna miss you...");
         exiting ++;
@@ -71,7 +70,7 @@ public class Client {
                     userLabel = auth.username() + ": " + teamColor;
                 }
             }
-            System.out.println("[" + userLabel + "] >>> ");
+            System.out.print("[" + userLabel + "] >>> ");
 
             String input = scanner.nextLine();
             var tokens = input.split(" ");
@@ -90,8 +89,27 @@ public class Client {
                     case "j", "join", "p", "play" -> handleJoin(tokens);
                     case "o", "observe" -> handleObserve(tokens);
                 }
-            } catch (Exception e) {
-
+            } catch (URISyntaxException e) {
+                System.out.println("Looks like something's wrong with this client :/");
+            } catch (IOException e) {
+                System.out.println("We're having trouble connecting to the server :/");
+            } catch (InterruptedException e) {
+                System.out.println("The request got interrupted :/");
+            } catch (InvalidAuthTokenException e) {
+                System.out.println("Your session is no longer valid :(");
+                System.out.println("Let me log you out!");
+                auth = null;
+            } catch (IllegalStateException e) {
+                System.out.println("Something went wrong :/");
+            } catch (BadRequestException e) {
+                System.out.println("Seems like your username or password is malformed!");
+            } catch (AlreadyTakenException e) {
+                System.out.println("This username is already taken!");
+            } catch (InvalidGameIDException e) {
+                System.out.println("This game is not available anymore :/");
+                System.out.println("Try fetching the available games again with \"list\"!");
+            } catch (DeploymentException e) {
+                System.out.println("We couldn't reserve a connection to the server :/");
             }
 
             if (!skipResetExit) {
@@ -125,66 +143,54 @@ public class Client {
         }
     }
 
-    private void handleList() {
+    private void handleList() throws URISyntaxException, IOException, InterruptedException {
         if (auth == null) {
             System.out.println("You gotta log in first!");
             return;
         }
 
-        try {
-            Collection<GameData> games = http.listGames(auth);
+        Collection<GameData> games = http.listGames(auth);
 
-            if (games.isEmpty()) {
-                System.out.println("No games have been created yet!");
-                System.out.println("Use the \"create\" command to make one of your own!");
+        if (games.isEmpty()) {
+            System.out.println("No games have been created yet!");
+            System.out.println("Use the \"create\" command to make one of your own!");
+        } else {
+            System.out.println("Here are all the current games:");
+        }
+
+        gamesList = new ArrayList<>();
+
+        int num = 0;
+        for (GameData entry : games) {
+            gamesList.add(entry);
+            String out = "  " + num + ". " + entry.gameName();
+
+            if (entry.whiteUsername() == null && entry.blackUsername() == null) {
+                out = out + "    no one has joined this game yet!";
             } else {
-                System.out.println("Here are all the current games:");
-            }
-
-            gamesList = new ArrayList<>();
-
-            int num = 0;
-            for (GameData entry : games) {
-                gamesList.add(entry);
-                String out = "  " + num + ". " + entry.gameName();
-
-                if (entry.whiteUsername() == null && entry.blackUsername() == null) {
-                    out = out + "    no one has joined this game yet!";
-                } else {
-                    if (entry.whiteUsername() != null) {
-                        out = out + "    playing as white: " + entry.whiteUsername();
-                    }
-
-                    if (entry.blackUsername() != null) {
-                        out = out + "    playing as black: " + entry.blackUsername();
-                    }
-
-                    if (entry.whiteUsername() == null) {
-                        out = out + "    WHITE is available!";
-                    }
-
-                    if (entry.blackUsername() == null) {
-                        out = out + "    BLACK is available!";
-                    }
+                if (entry.whiteUsername() != null) {
+                    out = out + "    playing as white: " + entry.whiteUsername();
                 }
 
-                System.out.println(out);
-                num += 1;
+                if (entry.blackUsername() != null) {
+                    out = out + "    playing as black: " + entry.blackUsername();
+                }
+
+                if (entry.whiteUsername() == null) {
+                    out = out + "    WHITE is available!";
+                }
+
+                if (entry.blackUsername() == null) {
+                    out = out + "    BLACK is available!";
+                }
             }
-        } catch (URISyntaxException e) {
-            System.out.println("Looks like something's wrong with this client :/");
-        } catch (IOException e) {
-            System.out.println("We're having trouble connecting to the server :/");
-        } catch (InterruptedException e) {
-            System.out.println("The request got interrupted :/");
-        } catch (InvalidAuthTokenException e) {
-            System.out.println("Your session is no longer valid :(");
-        } catch (IllegalStateException e) {
-            System.out.println("Something went wrong :/");
+
+            System.out.println(out);
+            num += 1;
         }
     }
 
-    private void handleRegister(String[] tokens) {
+    private void handleRegister(String[] tokens) throws URISyntaxException, IOException, InterruptedException {
         if (tokens.length == 1) {
             System.out.println("You need a username, password, and email!");
             return;
@@ -202,43 +208,33 @@ public class Client {
 
         System.out.println("Trying to register...");
 
-        try {
-            auth = http.register(registerUsername, registerPassword, registerEmail);
-            System.out.println("Welcome, " + auth.username() + "!");
-        } catch (URISyntaxException e) {
-            System.out.println("Looks like something's wrong with this client :/");
-        } catch (IOException e) {
-            System.out.println("We're having trouble connecting to the server :/");
-        } catch (InterruptedException e) {
-            System.out.println("The request got interrupted :/");
-        } catch (BadRequestException e) {
-            System.out.println("Seems like your username or password is malformed!");
-        } catch (AlreadyTakenException e) {
-            System.out.println("This username is already taken!");
-        } catch (IllegalStateException e) {
-            System.out.println("Something went wrong :/");
-        }
+        auth = http.register(registerUsername, registerPassword, registerEmail);
+        System.out.println("Welcome, " + auth.username() + "!");
     }
 
-    private void handleLogout() {
+    private void handleLogout() throws URISyntaxException, IOException, InterruptedException {
         if (auth == null) {
             System.out.println("No need! You're aren't logged in yet.");
             return;
         }
 
-        try {
-            http.logout(auth);
-            auth = null;
-        } catch (URISyntaxException e) {
-            System.out.println("Looks like something's wrong with this client :/");
-        } catch (IOException e) {
-            System.out.println("We're having trouble connecting to the server :/");
-        } catch (InterruptedException e) {
-            System.out.println("The request got interrupted :/");
-        }
+        http.logout(auth);
+        auth = null;
     }
 
     private void handleHelp() {
+        if (game != null) {
+            System.out.println("redraw - redraws the board");
+            System.out.println("leave - exit the game (does not forfeit)");
+            System.out.println("move [from row-column] [to row-column] - move a chess piece (ex. move a2 a4)");
+            System.out.println("resign - forfeit the game");
+            System.out.println("legal [row-column] - highlight legal moves for a piece");
+
+            System.out.println("\nUse the letter of the row and the number of the column for your moves,");
+            System.out.println("i.e. 'move a2 a4' or 'legal g1'");
+            return;
+        }
+
         if (auth != null) {
             System.out.println("create [game name] - makes a new public game");
             System.out.println("list - shows you all the public game IDs");
@@ -257,7 +253,7 @@ public class Client {
         }
     }
 
-    private void handleLogin(String[] tokens) {
+    private void handleLogin(String[] tokens) throws URISyntaxException, IOException, InterruptedException {
         if (tokens.length == 1) {
             System.out.println("You need a username and password!");
             return;
@@ -275,25 +271,11 @@ public class Client {
         var loginUsername = tokens[1];
         var loginPassword = tokens[2];
 
-        try {
-            auth = http.login(loginUsername,loginPassword);
-            System.out.println("Welcome, " + auth.username() + "!");
-        } catch (URISyntaxException e) {
-            System.out.println("Looks like something's wrong with this client :/");
-        } catch (IOException e) {
-            System.out.println("We're having trouble connecting to the server :/");
-        } catch (InterruptedException e) {
-            System.out.println("The request got interrupted :/");
-        } catch (AuthException e) {
-            System.out.println(e.getMessage());
-        } catch (IllegalStateException e) {
-            System.out.println("Something went wrong :/");
-        } catch (BadRequestException e) {
-            System.out.println("Seems like your username or password is malformed!");
-        }
+        auth = http.login(loginUsername,loginPassword);
+        System.out.println("Welcome, " + auth.username() + "!");
     }
 
-    private void handleCreate(String[] tokens) {
+    private void handleCreate(String[] tokens) throws URISyntaxException, IOException, InterruptedException {
         if (auth == null) {
             System.out.println("You gotta log in first!");
             return;
@@ -306,22 +288,8 @@ public class Client {
 
         var gameName = tokens[1];
 
-        try {
-            http.createGame(auth,gameName);
-            System.out.println("Game creation successful! Use the \"list\" command to find the game #!");
-        } catch (URISyntaxException e) {
-            System.out.println("Looks like something's wrong with this client :/");
-        } catch (IOException e) {
-            System.out.println("We're having trouble connecting to the server :/");
-        } catch (InterruptedException e) {
-            System.out.println("The request got interrupted :/");
-        } catch (InvalidAuthTokenException e) {
-            System.out.println("Your session is no longer valid :(");
-            System.out.println("I'll log you out so you can log back in!");
-            auth = null;
-        } catch (IllegalStateException e) {
-            System.out.println("Something went wrong :/");
-        }
+        http.createGame(auth,gameName);
+        System.out.println("Game creation successful! Use the \"list\" command to find the game #!");
     }
 
     private void handleObserve(String[] tokens) {
@@ -359,7 +327,7 @@ public class Client {
         System.out.println(observeGame.game().toStringWhite());
     }
 
-    private void handleJoin(String[] tokens) {
+    private void handleJoin(String[] tokens) throws URISyntaxException, IOException, InterruptedException, DeploymentException {
         if (auth == null) {
             System.out.println("You gotta log in first!");
             return;
@@ -376,10 +344,9 @@ public class Client {
         }
 
         if (gamesList == null) {
-            System.out.println("Use the 'list' command to see the options first! Jeez!");
+            System.out.println("Use the 'list' command to see the options first!");
             return;
         }
-
 
         int num;
         try {
@@ -388,53 +355,39 @@ public class Client {
             System.out.println("Your game # must be a number with no decimal places.");
             return;
         }
-        var colorString = tokens[2];
+
 
         if (num >= gamesList.size() || num < 0) {
             System.out.println("That's not a real game #. Nice try bucko.");
             return;
         }
 
-        if (!Objects.equals(colorString, "WHITE") && !Objects.equals(colorString, "BLACK")) {
+        teamColor = ChessGame.TeamColor.fromString(tokens[2]);
+
+        if (teamColor == null) {
             System.out.println("Make sure your team color is \"WHITE\" for white or \"BLACK\" for black");
             return;
         }
 
         game = gamesList.get(num);
 
-        if (colorString.equals("WHITE") && game.whiteUsername() != null) {
+        if (teamColor == ChessGame.TeamColor.WHITE && game.whiteUsername() != null) {
             System.out.println("White is already taken in this game, sorry.");
             return;
-        } else if (colorString.equals("BLACK") && game.blackUsername() != null) {
+        } else if (teamColor == ChessGame.TeamColor.BLACK && game.blackUsername() != null) {
             System.out.println("Black is already taken in this game, sorry.");
             return;
         }
 
-        try {
-            System.out.println("Trying to join...");
-            http.joinGame(auth,colorString,game.gameID());
-            System.out.println("Joined!\n");
+        System.out.println("Trying to join...");
+        http.joinGame(auth,teamColor.toString(),game.gameID());
+        ws.connect();
+        System.out.println("Joined!\n");
 
-            if (colorString.equals("WHITE")) {
-                System.out.println(game.game().toStringWhite());
-            } else {
-                System.out.println(game.game().toStringBlack());
-            }
-        } catch (URISyntaxException e) {
-            System.out.println("Looks like something's wrong with this client :/");
-        } catch (IOException e) {
-            System.out.println("We're having trouble connecting to the server :/");
-        } catch (InterruptedException e) {
-            System.out.println("The request got interrupted :/");
-        } catch (InvalidAuthTokenException e) {
-            System.out.println("Your session is no longer valid :(");
-            System.out.println("I'll log you out so you can log back in!");
-            auth = null;
-        } catch (IllegalStateException e) {
-            System.out.println("Something went wrong :/");
-        } catch (InvalidGameIDException e) {
-            System.out.println("This game is not available anymore :/");
-            System.out.println("Try fetching the available games again with \"list\"!");
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            System.out.println(game.game().toStringWhite());
+        } else {
+            System.out.println(game.game().toStringBlack());
         }
     }
 }

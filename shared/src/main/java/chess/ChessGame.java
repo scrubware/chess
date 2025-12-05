@@ -65,8 +65,26 @@ public class ChessGame {
      * Enum identifying the 2 possible teams in a chess game
      */
     public enum TeamColor {
-        WHITE,
-        BLACK
+        WHITE("WHITE"),
+        BLACK("BLACK")
+        ;
+
+        private final String text;
+
+        TeamColor(final String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+
+        public static TeamColor fromString(String string) {
+            if (string.equals("WHITE")) return WHITE;
+            if (string.equals("BLACK")) return BLACK;
+            return null;
+        }
     }
 
     /**

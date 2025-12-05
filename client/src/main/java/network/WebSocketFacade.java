@@ -1,8 +1,13 @@
 package network;
 
+import chess.ChessMove;
+import com.google.gson.*;
 import jakarta.websocket.*;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -10,12 +15,15 @@ public class WebSocketFacade extends Endpoint {
 
     public Session session;
 
+    private final Gson gson = new Gson();
     private final String address;
 
     public WebSocketFacade(int port) {
         address = "ws://localhost:" + port + "/ws";
 
     }
+
+
 
     public void connect() throws DeploymentException, IOException, URISyntaxException {
         URI uri = new URI(address);
@@ -24,7 +32,22 @@ public class WebSocketFacade extends Endpoint {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                // This is where messages are received by the client.
+                UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+
+                switch (command.getCommandType()) {
+                    case CONNECT -> {
+
+                    }
+                    case MAKE_MOVE -> {
+                        ChessMove move = gson.fromJson(message, MakeMoveCommand.class).getMove();
+                    }
+                    case LEAVE -> {
+
+                    }
+                    case RESIGN -> {
+
+                    }
+                }
             }
         });
     }

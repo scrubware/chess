@@ -1,8 +1,10 @@
 import chess.*;
 import exceptions.*;
+import jakarta.websocket.DeploymentException;
 import model.AuthData;
 import model.GameData;
 import network.ServerFacade;
+import network.WebSocketFacade;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -38,13 +40,29 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        var facade = new ServerFacade(8080);
+
+        int port = 8080;
+
+        var serverFacade = new ServerFacade(port);
+        WebSocketFacade socketFacade;
+
+        try {
+            socketFacade = new WebSocketFacade(port);
+        } catch (DeploymentException e) {
+            System.out.println("There was an issue :/");
+        } catch (URISyntaxException e) {
+            System.out.println("Looks like something's wrong with this client :/");
+        } catch (IOException e) {
+            System.out.println("We're having trouble connecting to the server :/");
+        }
 
         System.out.println("♕ Welcome to this super cool Chess program!\n\n");
         AuthData auth = null;
         System.out.println("Type 'help' if you're just getting started!");
         Scanner scanner = new Scanner(System.in);
         ArrayList<GameData> gamesList = null;
+
+
 
 
 
@@ -102,26 +120,26 @@ public class Main {
                     break;
                 case "r":
                 case "register":
-                    auth = handleRegister(tokens, auth, facade);
+                    auth = handleRegister(tokens, auth, serverFacade);
                     break;
                 case "login":
-                    auth = handleLogin(tokens, auth, facade);
+                    auth = handleLogin(tokens, auth, serverFacade);
                     break;
                 case "logout":
-                    auth = handleLogout(auth, facade);
+                    auth = handleLogout(auth, serverFacade);
                     break;
                 case "c":
                 case "create":
-                    auth = handleCreate(auth, tokens, facade);
+                    auth = handleCreate(auth, tokens, serverFacade);
                     break;
                 case "list":
-                    gamesList = handleList(auth, facade, gamesList);
+                    gamesList = handleList(auth, serverFacade, gamesList);
                     break;
                 case "j":
                 case "p":
                 case "play":
                 case "join":
-                    auth = handleJoin(auth, tokens, gamesList, facade);
+                    auth = handleJoin(auth, tokens, gamesList, serverFacade);
                     break;
                 case "o":
                 case "observe":

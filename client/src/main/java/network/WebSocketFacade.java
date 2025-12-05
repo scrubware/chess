@@ -11,11 +11,16 @@ public class WebSocketFacade extends Endpoint {
     public Session session;
 
 
-    public WebSocketFacade() throws Exception {
-        URI uri = new URI("ws://localhost:8080/ws");
+    public WebSocketFacade(int port) throws URISyntaxException, DeploymentException, IOException {
+        URI uri = new URI("ws://localhost:" + port + "/ws");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         session = container.connectToServer(this, uri);
 
+        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            public void onMessage(String message) {
+                // This is where messages are received by the client.
+            }
+        });
     }
 
     @Override

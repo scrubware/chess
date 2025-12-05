@@ -10,9 +10,15 @@ public class WebSocketFacade extends Endpoint {
 
     public Session session;
 
+    private final String address;
 
-    public WebSocketFacade(int port) throws URISyntaxException, DeploymentException, IOException {
-        URI uri = new URI("ws://localhost:" + port + "/ws");
+    public WebSocketFacade(int port) {
+        address = "ws://localhost:" + port + "/ws";
+
+    }
+
+    public void connect() throws DeploymentException, IOException, URISyntaxException {
+        URI uri = new URI(address);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         session = container.connectToServer(this, uri);
 

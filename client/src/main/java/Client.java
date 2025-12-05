@@ -14,19 +14,36 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-public class Main {
+public class Client {
 
-    private static int exiting = 0;
-    private static boolean closing = false;
-    private static boolean skipResetExit = false;
+    // REPL state
+    private int exiting = 0;
+    private boolean closing = false;
+    private boolean skipResetExit = false;
 
-    private static void exitOne() {
+    // User state
+    private AuthData auth = null;
+    private GameData game = null;
+    private ChessGame.TeamColor teamColor = null;
+    private ArrayList<GameData> gamesList = null;
+
+    // Network Components
+    private final ServerFacade http;
+    private final WebSocketFacade ws;
+
+    public Client(int port) {
+        http = new ServerFacade(port);
+        ws = new WebSocketFacade(port);
+    }
+
+
+    private void exitOne() {
         System.out.println("we're all gonna miss you...");
         exiting ++;
         skipResetExit = true;
     }
 
-    private static void exitTwo() {
+    private void exitTwo() {
         System.out.println("alright well... if that's what you want.");
         try {
             TimeUnit.SECONDS.sleep(2);
@@ -39,130 +56,83 @@ public class Main {
         } catch (Exception e) {}
     }
 
-    public static void main(String[] args) {
-
-        int port = 8080;
-
-        var serverFacade = new ServerFacade(port);
-        WebSocketFacade socketFacade;
-
-        try {
-            socketFacade = new WebSocketFacade(port);
-        } catch (DeploymentException e) {
-            System.out.println("There was an issue :/");
-        } catch (URISyntaxException e) {
-            System.out.println("Looks like something's wrong with this client :/");
-        } catch (IOException e) {
-            System.out.println("We're having trouble connecting to the server :/");
-        }
+    public void run() {
 
         System.out.println("♕ Welcome to this super cool Chess program!\n\n");
-        AuthData auth = null;
         System.out.println("Type 'help' if you're just getting started!");
+
         Scanner scanner = new Scanner(System.in);
-        ArrayList<GameData> gamesList = null;
 
-
-
-
-
-        while (true) {
+        do {
+            String userLabel = "Guest";
             if (auth != null) {
-                System.out.print("[" + auth.username() + "] >>> ");
-            } else {
-                System.out.print("[Unauthenticated] >>> ");
+                userLabel = auth.username();
+                if (game != null) {
+                    userLabel = auth.username() + ": " + teamColor;
+                }
             }
+            System.out.println("[" + userLabel + "] >>> ");
+
             String input = scanner.nextLine();
             var tokens = input.split(" ");
-            switch (tokens[0].toLowerCase()) {
-                case "h":
-                case "help":
-                    handleHelp(auth, tokens);
-                    break;
-                case "fq":
-                case "force":
-                case "forcequit":
-                    closing = true;
-                    break;
-                case "q":
-                case "quit":
-                case "exit":
-                    switch (exiting) {
-                        case 0:
-                            System.out.println("you really want to go? :(");
-                            exiting ++;
-                            skipResetExit = true;
-                            break;
-                        case 1:
-                            exitOne();
-                            break;
-                        case 2:
-                            exitTwo();
-                            break;
-                    }
-                    break;
-                case "n":
-                case "no":
-                    if (exiting == 1) {
-                        System.out.println("yay!");
-                    }
-                    break;
-                case "y":
-                case "yes":
-                    switch (exiting) {
-                        case 1:
-                            exitOne();
-                            break;
-                        case 2:
-                            exitTwo();
-                            break;
-                    }
-                    break;
-                case "r":
-                case "register":
-                    auth = handleRegister(tokens, auth, serverFacade);
-                    break;
-                case "login":
-                    auth = handleLogin(tokens, auth, serverFacade);
-                    break;
-                case "logout":
-                    auth = handleLogout(auth, serverFacade);
-                    break;
-                case "c":
-                case "create":
-                    auth = handleCreate(auth, tokens, serverFacade);
-                    break;
-                case "list":
-                    gamesList = handleList(auth, serverFacade, gamesList);
-                    break;
-                case "j":
-                case "p":
-                case "play":
-                case "join":
-                    auth = handleJoin(auth, tokens, gamesList, serverFacade);
-                    break;
-                case "o":
-                case "observe":
-                    handleObserve(auth, tokens, gamesList);
-                    break;
+            try {
+                switch (tokens[0].toLowerCase()) {
+                    case "h", "help" -> handleHelp();
+                    case "fq", "force", "forcequit" -> closing = true;
+                    case "q", "quit", "e", "exit" -> handleExit();
+                    case "n", "no" -> handleNo();
+                    case "y", "yes" -> handleYes();
+                    case "r", "register" -> handleRegister(tokens);
+                    case "login" -> handleLogin(tokens);
+                    case "logout" -> handleLogout();
+                    case "c", "create" -> handleCreate(tokens);
+                    case "list" -> handleList();
+                    case "j", "join", "p", "play" -> handleJoin(tokens);
+                    case "o", "observe" -> handleObserve(tokens);
+                }
+            } catch (Exception e) {
+
             }
+
             if (!skipResetExit) {
                 exiting = 0;
             }
-            if (closing) {
-                break;
-            }
+        } while (!closing);
+    }
+
+    private void handleNo() {
+        if (exiting == 1) {
+            System.out.println("yay!");
         }
     }
 
-    private static ArrayList<GameData> handleList(AuthData auth, ServerFacade facade, ArrayList<GameData> gamesList) {
+    private void handleYes() {
+        switch (exiting) {
+            case 1 -> exitOne();
+            case 2 -> exitTwo();
+        }
+    }
+
+    private void handleExit() {
+        switch (exiting) {
+            case 0 -> {
+                System.out.println("you really want to go? :(");
+                exiting ++;
+                skipResetExit = true;
+            }
+            case 1 -> exitOne();
+            case 2 -> exitTwo();
+        }
+    }
+
+    private void handleList() {
         if (auth == null) {
             System.out.println("You gotta log in first!");
-            return gamesList;
+            return;
         }
 
         try {
-            Collection<GameData> games = facade.listGames(auth);
+            Collection<GameData> games = http.listGames(auth);
 
             if (games.isEmpty()) {
                 System.out.println("No games have been created yet!");
@@ -212,19 +182,18 @@ public class Main {
         } catch (IllegalStateException e) {
             System.out.println("Something went wrong :/");
         }
-        return gamesList;
     }
 
-    private static AuthData handleRegister(String[] tokens, AuthData auth, ServerFacade facade) {
+    private void handleRegister(String[] tokens) {
         if (tokens.length == 1) {
             System.out.println("You need a username, password, and email!");
-            return auth;
+            return;
         } else if (tokens.length == 2) {
             System.out.println("You're missing a username, password, and/or email!");
-            return auth;
+            return;
         } else if (tokens.length == 3) {
             System.out.println("You're missing a username, password, or email!");
-            return auth;
+            return;
         }
 
         var registerUsername = tokens[1];
@@ -234,7 +203,7 @@ public class Main {
         System.out.println("Trying to register...");
 
         try {
-            auth = facade.register(registerUsername, registerPassword, registerEmail);
+            auth = http.register(registerUsername, registerPassword, registerEmail);
             System.out.println("Welcome, " + auth.username() + "!");
         } catch (URISyntaxException e) {
             System.out.println("Looks like something's wrong with this client :/");
@@ -249,17 +218,16 @@ public class Main {
         } catch (IllegalStateException e) {
             System.out.println("Something went wrong :/");
         }
-        return auth;
     }
 
-    private static AuthData handleLogout(AuthData auth, ServerFacade facade) {
+    private void handleLogout() {
         if (auth == null) {
             System.out.println("No need! You're aren't logged in yet.");
-            return auth;
+            return;
         }
 
         try {
-            facade.logout(auth);
+            http.logout(auth);
             auth = null;
         } catch (URISyntaxException e) {
             System.out.println("Looks like something's wrong with this client :/");
@@ -268,10 +236,9 @@ public class Main {
         } catch (InterruptedException e) {
             System.out.println("The request got interrupted :/");
         }
-        return auth;
     }
 
-    private static void handleHelp(AuthData auth, String[] tokens) {
+    private void handleHelp() {
         if (auth != null) {
             System.out.println("create [game name] - makes a new public game");
             System.out.println("list - shows you all the public game IDs");
@@ -282,44 +249,34 @@ public class Main {
             System.out.println("register [username] [password] [email] - makes an account");
             System.out.println("login [username] [password] - logs into an existing account");
         }
-        System.out.println("quit - kinda does what you'd expect, but why would you want to go?");
-
-        if (tokens.length > 1) {
-            System.out.println("help - looks like you figured this one out already! or, mostly...");
-            System.out.print("you threw ");
-            for (int i = 1; i < tokens.length; i ++) {
-                System.out.print(tokens[i] + " ");
-            }
-            System.out.println("in there. for fun i guess?");
-        } else {
-            System.out.println("help - looks like you figured this one out already!");
-        }
+        System.out.println("quit - kinda does what you'd expect");
+        System.out.println("help - looks like you figured this one out already!");
 
         if (auth == null) {
             System.out.println("of course, there are a bunch more things you can do once you're logged in!");
         }
     }
 
-    private static AuthData handleLogin(String[] tokens, AuthData auth, ServerFacade facade) {
+    private void handleLogin(String[] tokens) {
         if (tokens.length == 1) {
             System.out.println("You need a username and password!");
-            return auth;
+            return;
         } else if (tokens.length == 2) {
             System.out.println("You're missing a username or password!");
-            return auth;
+            return;
         }
 
         if (auth != null) {
             System.out.println("You are already logged in, actually!");
             System.out.println("Please log out first if you're desperate to login again.");
-            return auth;
+            return;
         }
 
         var loginUsername = tokens[1];
         var loginPassword = tokens[2];
 
         try {
-            auth = facade.login(loginUsername,loginPassword);
+            auth = http.login(loginUsername,loginPassword);
             System.out.println("Welcome, " + auth.username() + "!");
         } catch (URISyntaxException e) {
             System.out.println("Looks like something's wrong with this client :/");
@@ -334,24 +291,23 @@ public class Main {
         } catch (BadRequestException e) {
             System.out.println("Seems like your username or password is malformed!");
         }
-        return auth;
     }
 
-    private static AuthData handleCreate(AuthData auth, String[] tokens, ServerFacade facade) {
+    private void handleCreate(String[] tokens) {
         if (auth == null) {
             System.out.println("You gotta log in first!");
-            return auth;
+            return;
         }
 
         if (tokens.length == 1) {
             System.out.println("You must provide a game name!");
-            return auth;
+            return;
         }
 
         var gameName = tokens[1];
 
         try {
-            facade.createGame(auth,gameName);
+            http.createGame(auth,gameName);
             System.out.println("Game creation successful! Use the \"list\" command to find the game #!");
         } catch (URISyntaxException e) {
             System.out.println("Looks like something's wrong with this client :/");
@@ -366,10 +322,9 @@ public class Main {
         } catch (IllegalStateException e) {
             System.out.println("Something went wrong :/");
         }
-        return auth;
     }
 
-    private static void handleObserve(AuthData auth, String[] tokens, ArrayList<GameData> gamesList) {
+    private void handleObserve(String[] tokens) {
         if (auth == null) {
             System.out.println("You gotta log in first!");
             return;
@@ -381,7 +336,7 @@ public class Main {
         }
 
         if (gamesList == null) {
-            System.out.println("Use the 'list' command to see the options first! Jeez!");
+            System.out.println("Use the 'list' command to see the options first!");
             return;
         }
 
@@ -404,25 +359,25 @@ public class Main {
         System.out.println(observeGame.game().toStringWhite());
     }
 
-    private static AuthData handleJoin(AuthData auth, String[] tokens, ArrayList<GameData> gamesList, ServerFacade facade) {
+    private void handleJoin(String[] tokens) {
         if (auth == null) {
             System.out.println("You gotta log in first!");
-            return auth;
+            return;
         }
 
         if (tokens.length == 1) {
             System.out.println("You must provide a game # and \"WHITE\" for white or \"BLACK\" for black");
-            return auth;
+            return;
         }
 
         if (tokens.length == 2) {
             System.out.println("You must specify \"WHITE\" for white or \"BLACK\" for black");
-            return auth;
+            return;
         }
 
         if (gamesList == null) {
             System.out.println("Use the 'list' command to see the options first! Jeez!");
-            return auth;
+            return;
         }
 
 
@@ -431,33 +386,33 @@ public class Main {
             num = Integer.parseInt(tokens[1]);
         } catch (NumberFormatException e) {
             System.out.println("Your game # must be a number with no decimal places.");
-            return auth;
+            return;
         }
         var colorString = tokens[2];
 
         if (num >= gamesList.size() || num < 0) {
             System.out.println("That's not a real game #. Nice try bucko.");
-            return auth;
+            return;
         }
 
         if (!Objects.equals(colorString, "WHITE") && !Objects.equals(colorString, "BLACK")) {
             System.out.println("Make sure your team color is \"WHITE\" for white or \"BLACK\" for black");
-            return auth;
+            return;
         }
 
-        GameData game = gamesList.get(num);
+        game = gamesList.get(num);
 
         if (colorString.equals("WHITE") && game.whiteUsername() != null) {
             System.out.println("White is already taken in this game, sorry.");
-            return auth;
+            return;
         } else if (colorString.equals("BLACK") && game.blackUsername() != null) {
             System.out.println("Black is already taken in this game, sorry.");
-            return auth;
+            return;
         }
 
         try {
             System.out.println("Trying to join...");
-            facade.joinGame(auth,colorString,game.gameID());
+            http.joinGame(auth,colorString,game.gameID());
             System.out.println("Joined!\n");
 
             if (colorString.equals("WHITE")) {
@@ -481,6 +436,5 @@ public class Main {
             System.out.println("This game is not available anymore :/");
             System.out.println("Try fetching the available games again with \"list\"!");
         }
-        return auth;
     }
 }

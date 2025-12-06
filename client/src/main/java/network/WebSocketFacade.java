@@ -51,6 +51,11 @@ public class WebSocketFacade extends Endpoint {
                         client.drawBoard(null);
                         client.outputUserCursor();
                     }
+                    case LOAD_DATA -> { // This just updates the data including player slots without redrawing.
+                        var game = gson.fromJson(message, LoadGameMessage.class).getGame();
+                        client.updateGame(game);
+                        //System.out.println("UPDATED DATA!!!");
+                    }
                     case ERROR -> {
                         var errorMessage = gson.fromJson(message, ErrorMessage.class).getErrorMessage();
                         System.out.println();

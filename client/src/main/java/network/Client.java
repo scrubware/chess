@@ -122,12 +122,25 @@ public class Client {
         } while (!closing);
     }
 
+    public boolean isObserver() {
+        if (game.whiteUsername() != null && game.whiteUsername().equals(auth.username())) {
+            return false;
+        }
+        if (game.blackUsername() != null && game.blackUsername().equals(auth.username())) {
+            return false;
+        }
+        return true;
+    }
+
     public void outputUserCursor() {
         String userLabel = "Guest";
         if (auth != null) {
             userLabel = auth.username();
             if (game != null) {
-                userLabel = auth.username() + ": " + teamColor;
+                userLabel = auth.username() + ": OBSERVER";
+                if (teamColor != null) {
+                    userLabel = auth.username() + ": " + teamColor;
+                }
             }
         }
         System.out.print("[" + userLabel + "] >>> ");
@@ -189,6 +202,11 @@ public class Client {
             return;
         }
 
+        if (isObserver()) {
+            System.out.println("You can't run this command while just observing.");
+            return;
+        }
+
         if (tokens.length < 3) {
             System.out.println("You need to supply a start and end position for your move.");
             return;
@@ -220,6 +238,11 @@ public class Client {
             return;
         }
 
+        if (isObserver()) {
+            System.out.println("You can't run this command while just observing.");
+            return;
+        }
+
         if (!tryingToResign) {
             System.out.println("Are you sure? This will forfeit the game.");
             System.out.println("Type 'resign' again to confirm or 'no' to cancel.");
@@ -239,6 +262,9 @@ public class Client {
         }
 
         ws.sendLeave(auth.authToken(),game.gameID());
+        game = null;
+        teamColor = null;
+        tryingToResign = false;
     }
 
     public void drawBoard(ChessPosition validMovesPosition) {
@@ -365,10 +391,16 @@ public class Client {
 
         if (game != null) {
             System.out.println("redraw - redraws the board");
-            System.out.println("leave - exit the game (does not forfeit)");
-            System.out.println("move [from row-column] [to row-column] - move a chess piece");
-            System.out.println("resign - forfeit the game");
             System.out.println("legal [row-column] - highlight legal moves for a piece");
+            System.out.print("leave - exit the game");
+
+            if (!isObserver()) {
+                System.out.println(" (does not forfeit)");
+                System.out.println("move [from row-column] [to row-column] - move a chess piece");
+                System.out.println("resign - forfeit the game");
+            } else {
+                System.out.println();
+            }
 
             System.out.println("\nUse the letter of the row and the number of the column for commands");
             System.out.println("for instance, 'move a2 a4' or 'legal g1'");
@@ -433,7 +465,7 @@ public class Client {
         System.out.println("Game creation successful! Use the \"list\" command to find the game #!");
     }
 
-    private void handleObserve(String[] tokens) {
+    private void handleObserve(String[] tokens) throws DeploymentException, IOException, URISyntaxException {
         if (auth == null) {
             System.out.println("You gotta log in first!");
             return;
@@ -464,6 +496,7 @@ public class Client {
         }
 
         game = gamesList.get(observeNum);
+        ws.connect(auth.authToken(),game.gameID());
 
         drawBoard(null);
     }

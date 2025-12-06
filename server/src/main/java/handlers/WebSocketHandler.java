@@ -13,10 +13,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -97,6 +94,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 } else {
                     sendToAllClients(new NotificationMessage(username + " is now watching the game"));
                 }
+
+                sendToAllClients(new LoadDataMessage(game));
             }
             case MAKE_MOVE -> {
                 ChessMove move = gson.fromJson(ctx.message(), MakeMoveCommand.class).getMove();
@@ -111,24 +110,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                 gameDAO.updateGame(gameID,game);
 
-                // Docs suggest doing the checking before sending messages.
-                boolean blackCheckmateNotification = game.game().isInCheckmate(BLACK);
-                boolean whiteCheckmateNotification = game.game().isInCheckmate(WHITE);
-                boolean stalemateNotification = game.game().isInStalemate(WHITE) || game.game().isInStalemate(BLACK);
-
                 // Send move notification
                 sendToAllClients(new LoadGameMessage(game));
                 sendToAllClientsExcept(new NotificationMessage(""),ctx.session);
 
-                if (blackCheckmateNotification) {
+                if (game.game().isInCheck(BLACK)) {
+                    sendToAllClients(new NotificationMessage(game.blackUsername() + " is in check."));
+                }
+
+                if (game.game().isInCheck(WHITE)) {
+                    sendToAllClients(new NotificationMessage(game.whiteUsername() + " is in check."));
+                }
+
+                if (game.game().isInCheckmate(BLACK)) {
                     sendToAllClients(new NotificationMessage(game.blackUsername() + " is in checkmate!"));
                 }
 
-                if (whiteCheckmateNotification) {
-                    sendToAllClients(new NotificationMessage(game.blackUsername() + " is in checkmate!"));
+                if (game.game().isInCheckmate(WHITE)) {
+                    sendToAllClients(new NotificationMessage(game.whiteUsername() + " is in checkmate!"));
                 }
 
-                if (stalemateNotification) {
+                if (game.game().isInStalemate(WHITE) || game.game().isInStalemate(BLACK)) {
                     sendToAllClients(new NotificationMessage("The game has reached a stalemate!"));
                 }
             }
@@ -147,6 +149,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 } else {
                     sendToAllClients(new NotificationMessage(username + " has stopped watching the game"));
                 }
+
+                sendToAllClients(new LoadDataMessage(game));
             }
             case RESIGN -> {
                 sendToAllClients(new NotificationMessage(username + " resigned."));

@@ -138,7 +138,7 @@ public class Client {
                 int rank = lower.charAt(0) - 'a' + 1;
                 int file = lower.charAt(1) - '1' + 1;
 
-                return new ChessPosition(rank,file);
+                return new ChessPosition(file,rank);
             }
         }
 
@@ -151,7 +151,7 @@ public class Client {
             return;
         }
 
-        drawBoard();
+        drawBoard(null);
     }
 
     private void handleLegal(String[] tokens) {
@@ -172,7 +172,7 @@ public class Client {
             return;
         }
 
-
+        drawBoard(position);
     }
 
     private void handleMove(String[] tokens) throws IOException {
@@ -231,11 +231,11 @@ public class Client {
         ws.sendLeave();
     }
 
-    private void drawBoard() {
+    private void drawBoard(ChessPosition validMovesPosition) {
         if (teamColor == ChessGame.TeamColor.BLACK) {
-            System.out.println(game.game().toStringBlack());
+            System.out.println(game.game().toStringBlack(validMovesPosition));
         } else { // This covers also the null case where the user is observing.
-            System.out.println(game.game().toStringWhite());
+            System.out.println(game.game().toStringWhite(validMovesPosition));
         }
     }
 
@@ -455,7 +455,7 @@ public class Client {
 
         GameData observeGame = gamesList.get(observeNum);
 
-        System.out.println(observeGame.game().toStringWhite());
+        drawBoard(null);
     }
 
     private void handleJoin(String[] tokens) throws URISyntaxException, IOException, InterruptedException, DeploymentException {
@@ -515,6 +515,6 @@ public class Client {
         ws.connect();
         System.out.println("Joined!\n");
 
-        drawBoard();
+        drawBoard(null);
     }
 }

@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -106,7 +107,7 @@ public class ChessBoard {
         return Arrays.deepHashCode(board);
     }
 
-    private String toStringCommon(boolean asWhite) {
+    private String toStringCommon(boolean asWhite, Collection<ChessPosition> validMoves) {
         var uni = "\u001b[";
         var black = "40;";
         var gray = "100;";
@@ -140,24 +141,19 @@ public class ChessBoard {
         files.add("8");
         files.add(" ");
 
-
-        if (asWhite) {
-
-        }
-
         StringBuilder out = new StringBuilder();
 
         if (asWhite) {
             for (int row = 9; row >= 0; row --) {
                 for (int col = 0; col <= 9; col ++) {
-                    toStringInner(uni, black, gray, blue, text, light, end, ranks, files, out, row, col);
+                    toStringInner(uni, black, gray, blue, text, light, end, ranks, files, out, validMoves, row, col);
                 }
                 out.append(uni + back + text + end + "\n");
             }
         } else {
             for (int row = 0; row <= 9; row ++) {
                 for (int col = 9; col >= 0; col --) {
-                    toStringInner(uni, black, gray, blue, text, light, end, ranks, files, out, row, col);
+                    toStringInner(uni, black, gray, blue, text, light, end, ranks, files, out, validMoves, row, col);
                 }
                 out.append(uni + back + text + end + "\n");
             }
@@ -170,10 +166,13 @@ public class ChessBoard {
 
     private void toStringInner(String uni, String black, String gray, String blue, String text,
                                String light, String end, ArrayList<String> ranks, ArrayList<String> files,
-                               StringBuilder out, int row, int col) {
+                               StringBuilder out, Collection<ChessPosition> validMoves, int row, int col) {
         if (row == 9 || row == 0 || col == 9 || col == 0) {
             out.append(uni + black + light + end);
         }
+
+        var lightGreen = "102;";
+        var darkGreen = "42;";
 
         if (row == 0 || row == 9) {
             out.append(" ");
@@ -193,9 +192,17 @@ public class ChessBoard {
         out.append(uni);
 
         if ((col + row) % 2 == 0) {
-            out.append(black);
+            if (validMoves.contains(new ChessPosition(row,col))) {
+                out.append(darkGreen);
+            } else {
+                out.append(black);
+            }
         } else {
-            out.append(gray);
+            if (validMoves.contains(new ChessPosition(row,col))) {
+                out.append(lightGreen);
+            } else {
+                out.append(gray);
+            }
         }
 
         if (piece == null) {
@@ -212,14 +219,14 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return toStringCommon(true);
+        return toStringCommon(true, null);
     }
 
-    public String toStringWhite() {
-        return toString();
+    public String toStringWhite(Collection<ChessPosition> validMoves) {
+        return toStringCommon(true, validMoves);
     }
 
-    public String toStringBlack() {
-        return toStringCommon(false);
+    public String toStringBlack(Collection<ChessPosition> validMoves) {
+        return toStringCommon(false, validMoves);
     }
 }

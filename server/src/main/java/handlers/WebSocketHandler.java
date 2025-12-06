@@ -103,10 +103,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                 gameDAO.updateGame(gameID,game);
 
-                // Send move notification
-                sendToAllClients(new LoadGameMessage(game));
-                sendToAllClientsExcept(new NotificationMessage(""),ctx.session);
-
+                // Docs suggest doing the checking before sending messages.
                 if (game.game().isInCheckmate(BLACK)) {
                     // Send black is in checkmate notification
                 }
@@ -118,6 +115,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 if (game.game().isInStalemate(WHITE) || game.game().isInStalemate(BLACK)) {
 
                 }
+
+                // Send move notification
+                sendToAllClients(new LoadGameMessage(game));
+                sendToAllClientsExcept(new NotificationMessage(""),ctx.session);
             }
             case LEAVE -> {
                 clients.remove(ctx.session);

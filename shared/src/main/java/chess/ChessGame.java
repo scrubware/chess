@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
@@ -53,12 +54,30 @@ public class ChessGame {
         return result;
     }
 
-    public String toStringWhite() {
-        return board.toStringWhite();
+    public String toStringWhite(ChessPosition validMovesPosition) {
+
+        Collection<ChessPosition> validPositions = new ArrayList<>();
+
+        if (validMovesPosition != null) {
+            for (var move : validMoves(validMovesPosition)) {
+                validPositions.add(move.endPosition);
+            }
+        }
+
+        return board.toStringWhite(validPositions);
     }
 
-    public String toStringBlack() {
-        return board.toStringBlack();
+    public String toStringBlack(ChessPosition validMovesPosition) {
+
+        Collection<ChessPosition> validPositions = new ArrayList<>();
+
+        if (validMovesPosition != null) {
+            for (var move : validMoves(validMovesPosition)) {
+                validPositions.add(move.endPosition);
+            }
+        }
+
+        return board.toStringBlack(validPositions);
     }
 
     /**

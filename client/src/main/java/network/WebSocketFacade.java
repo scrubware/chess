@@ -24,8 +24,10 @@ public class WebSocketFacade extends Endpoint {
 
     public WebSocketFacade(int port) {
         address = "ws://localhost:" + port + "/ws";
-
     }
+
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
     public void connect() throws DeploymentException, IOException, URISyntaxException {
         URI uri = new URI(address);
@@ -52,8 +54,19 @@ public class WebSocketFacade extends Endpoint {
         });
     }
 
-    @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
+    private void sendCommon() {
 
+    }
+
+    public void sendResign() {
+
+    }
+
+    public void sendLeave() {
+
+    }
+
+    public void sendMove(String authToken, int gameID, ChessMove move) throws IOException {
+        session.getBasicRemote().sendText(gson.toJson(new MakeMoveCommand(authToken,gameID,move)));
     }
 }

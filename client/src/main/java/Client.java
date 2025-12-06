@@ -82,12 +82,20 @@ public class Client {
                     case "y", "yes" -> handleYes();
                     case "r", "register" -> handleRegister(tokens);
                     case "login" -> handleLogin(tokens);
+
+                    // Once-Authed Commands
                     case "logout" -> handleLogout();
                     case "c", "create" -> handleCreate(tokens);
                     case "list" -> handleList();
                     case "j", "join", "p", "play" -> handleJoin(tokens);
                     case "o", "observe" -> handleObserve(tokens);
-                    case "redraw" -> drawBoard();
+
+                    // Game Commands
+                    case "redraw" -> handleRedraw();
+                    case "leave" -> handleLeave();
+                    case "resign" -> handleResign();
+                    case "legal" -> handleLegal(tokens);
+                    case "move" -> handleMove(tokens);
                 }
             } catch (URISyntaxException e) {
                 System.out.println("Looks like something's wrong with this client :/");
@@ -118,6 +126,101 @@ public class Client {
                 exiting = 0;
             }
         } while (!closing);
+    }
+
+    private ChessPosition stringToPosition(String string) {
+
+        String lower = string.toLowerCase();
+
+        if (lower.charAt(0) >= 'a' && lower.charAt(0) <= 'h') {
+            if (lower.charAt(1) >= '1' && lower.charAt(1) <= '0') {
+                int rank = lower.charAt(0) - 'a';
+                int file = lower.charAt(1) - '1';
+
+                return new ChessPosition(rank,file);
+            }
+        }
+
+        return null;
+    }
+
+    private void handleRedraw() {
+        if (game == null) {
+            System.out.println("You need to be in a game to run this command.");
+            return;
+        }
+
+        drawBoard();
+    }
+
+    private void handleLegal(String[] tokens) {
+        if (game == null) {
+            System.out.println("You need to be in a game to run this command.");
+            return;
+        }
+
+        if (tokens.length < 2) {
+            System.out.println("You need to supply a position to check.");
+            return;
+        }
+
+        var position = stringToPosition(tokens[1]);
+
+        if (position == null) {
+            System.out.println("Make sure you're formatting the position right! e.g. 'a1'");
+            return;
+        }
+
+
+    }
+
+    private void handleMove(String[] tokens) throws IOException {
+        if (game == null) {
+            System.out.println("You need to be in a game to run this command.");
+            return;
+        }
+
+        if (tokens.length < 3) {
+            System.out.println("You need to supply a start and end position for your move.");
+            return;
+        }
+
+        var startPosition = stringToPosition(tokens[1]);
+        var endPosition = stringToPosition(tokens[2]);
+
+        if (startPosition == null) {
+            if (endPosition == null) {
+                System.out.println("Make sure you're formatting both the positions right! e.g. 'a1'");
+            } else {
+                System.out.println("Make sure you're formatting the start position right! e.g. 'a1'");
+            }
+            return;
+        } else {
+            if (endPosition == null) {
+                System.out.println("Make sure you're formatting the end position right! e.g. 'a1'");
+                return;
+            }
+        }
+
+        ws.sendMove(auth.authToken(), game.gameID(), new ChessMove(startPosition, endPosition, null));
+    }
+
+    private void handleResign() {
+        if (game == null) {
+            System.out.println("You need to be in a game to run this command.");
+            return;
+        }
+
+        ws.sendResign();
+    }
+
+    private void handleLeave() {
+        if (game == null) {
+            System.out.println("You need to be in a game to run this command.");
+            return;
+        }
+
+        ws.sendLeave();
     }
 
     private void drawBoard() {
@@ -261,7 +364,7 @@ public class Client {
             System.out.println("help - looks like you figured this one out already!");
 
             if (auth == null) {
-                System.out.println("\n\nof course, there are a bunch more things you can do once you're logged in!");
+                System.out.println("\nof course, there are a bunch more things you can do once you're logged in!");
             }
         }
 

@@ -35,6 +35,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             case MAKE_MOVE -> {
                 ChessMove move = gson.fromJson(ctx.message(), MakeMoveCommand.class).getMove();
+                System.out.println(move);
             }
             case LEAVE -> {
 

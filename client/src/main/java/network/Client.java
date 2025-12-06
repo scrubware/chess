@@ -370,7 +370,6 @@ public class Client {
 
             System.out.println("\nUse the letter of the row and the number of the column for commands");
             System.out.println("for instance, 'move a2 a4' or 'legal g1'");
-            return;
         } else {
             if (auth != null) {
                 System.out.println("create [game name] - makes a new public game");
@@ -462,7 +461,7 @@ public class Client {
             return;
         }
 
-        GameData observeGame = gamesList.get(observeNum);
+        game = gamesList.get(observeNum);
 
         drawBoard(null);
     }

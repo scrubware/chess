@@ -64,7 +64,7 @@ public class ChessGame {
             }
         }
 
-        return board.toStringWhite(validPositions);
+        return board.toStringWhite(validMovesPosition, validPositions);
     }
 
     public String toStringBlack(ChessPosition validMovesPosition) {
@@ -77,7 +77,7 @@ public class ChessGame {
             }
         }
 
-        return board.toStringBlack(validPositions);
+        return board.toStringBlack(validMovesPosition, validPositions);
     }
 
     /**

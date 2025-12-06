@@ -49,14 +49,21 @@ public class WebSocketFacade extends Endpoint {
                         var game = gson.fromJson(message, LoadGameMessage.class).getGame();
                         client.updateGame(game);
                         client.drawBoard(null);
+                        client.outputUserCursor();
                     }
                     case ERROR -> {
                         var errorMessage = gson.fromJson(message, ErrorMessage.class).getErrorMessage();
+                        System.out.println();
                         System.out.println(errorMessage);
+                        System.out.println();
+                        client.outputUserCursor();
                     }
                     case NOTIFICATION -> {
                         var notificationMessage = gson.fromJson(message, NotificationMessage.class).getMessage();
+                        System.out.println();
                         System.out.println(notificationMessage);
+                        System.out.println();
+                        client.outputUserCursor();
                     }
                 }
             }

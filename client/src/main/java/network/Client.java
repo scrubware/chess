@@ -63,14 +63,7 @@ public class Client {
         Scanner scanner = new Scanner(System.in);
 
         do {
-            String userLabel = "Guest";
-            if (auth != null) {
-                userLabel = auth.username();
-                if (game != null) {
-                    userLabel = auth.username() + ": " + teamColor;
-                }
-            }
-            System.out.print("[" + userLabel + "] >>> ");
+            outputUserCursor();
 
             String input = scanner.nextLine();
             var tokens = input.split(" ");
@@ -127,6 +120,17 @@ public class Client {
                 exiting = 0;
             }
         } while (!closing);
+    }
+
+    public void outputUserCursor() {
+        String userLabel = "Guest";
+        if (auth != null) {
+            userLabel = auth.username();
+            if (game != null) {
+                userLabel = auth.username() + ": " + teamColor;
+            }
+        }
+        System.out.print("[" + userLabel + "] >>> ");
     }
 
     public void updateGame(GameData game) {

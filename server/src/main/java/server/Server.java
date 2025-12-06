@@ -26,7 +26,7 @@ public class Server {
         var adminHandler = new AdminHandler(clearDAO);
         var userHandler = new UserHandler(authDAO,userDAO);
         var gameHandler = new GameHandler(authDAO,gameDAO);
-        var socketHandler = new WebSocketHandler();
+        var socketHandler = new WebSocketHandler(authDAO, gameDAO);
 
         javalin.delete("/db",adminHandler::handleClear);
 

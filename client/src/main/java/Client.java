@@ -25,6 +25,7 @@ public class Client {
     private GameData game = null;
     private ChessGame.TeamColor teamColor = null;
     private ArrayList<GameData> gamesList = null;
+    private boolean tryingToResign = false;
 
     // Network Components
     private final ServerFacade http;
@@ -133,9 +134,9 @@ public class Client {
         String lower = string.toLowerCase();
 
         if (lower.charAt(0) >= 'a' && lower.charAt(0) <= 'h') {
-            if (lower.charAt(1) >= '1' && lower.charAt(1) <= '0') {
-                int rank = lower.charAt(0) - 'a';
-                int file = lower.charAt(1) - '1';
+            if (lower.charAt(1) >= '1' && lower.charAt(1) <= '8') {
+                int rank = lower.charAt(0) - 'a' + 1;
+                int file = lower.charAt(1) - '1' + 1;
 
                 return new ChessPosition(rank,file);
             }
@@ -211,6 +212,13 @@ public class Client {
             return;
         }
 
+        if (!tryingToResign) {
+            System.out.println("Are you sure? This will forfeit the game.");
+            System.out.println("Type 'resign' again to confirm or 'no' to cancel.");
+            tryingToResign = true;
+            return;
+        }
+
         ws.sendResign();
     }
 
@@ -227,13 +235,18 @@ public class Client {
         if (teamColor == ChessGame.TeamColor.BLACK) {
             System.out.println(game.game().toStringBlack());
         } else { // This covers also the null case where the user is observing.
-            System.out.println(game.game().toStringBlack());
+            System.out.println(game.game().toStringWhite());
         }
     }
 
     private void handleNo() {
         if (exiting == 1) {
             System.out.println("yay!");
+        }
+
+        if (tryingToResign) {
+            System.out.println("Cancelling resignation.");
+            tryingToResign = false;
         }
     }
 

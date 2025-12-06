@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static websocket.commands.UserGameCommand.CommandType.CONNECT;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
 
@@ -70,16 +70,12 @@ public class WebSocketFacade extends Endpoint {
         });
     }
 
-    private void sendCommon() {
-
+    public void sendResign(String authToken, int gameID) throws IOException {
+        session.getBasicRemote().sendText(gson.toJson(new UserGameCommand(RESIGN,authToken,gameID)));
     }
 
-    public void sendResign() {
-
-    }
-
-    public void sendLeave() {
-
+    public void sendLeave(String authToken, int gameID) throws IOException {
+        session.getBasicRemote().sendText(gson.toJson(new UserGameCommand(LEAVE,authToken,gameID)));
     }
 
     public void sendMove(String authToken, int gameID, ChessMove move) throws IOException {

@@ -214,7 +214,7 @@ public class Client {
         ws.sendMove(auth.authToken(), game.gameID(), new ChessMove(startPosition, endPosition, null));
     }
 
-    private void handleResign() {
+    private void handleResign() throws IOException {
         if (game == null) {
             System.out.println("You need to be in a game to run this command.");
             return;
@@ -227,16 +227,18 @@ public class Client {
             return;
         }
 
-        ws.sendResign();
+        tryingToResign = false;
+
+        ws.sendResign(auth.authToken(), game.gameID());
     }
 
-    private void handleLeave() {
+    private void handleLeave() throws IOException {
         if (game == null) {
             System.out.println("You need to be in a game to run this command.");
             return;
         }
 
-        ws.sendLeave();
+        ws.sendLeave(auth.authToken(),game.gameID());
     }
 
     public void drawBoard(ChessPosition validMovesPosition) {

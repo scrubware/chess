@@ -80,6 +80,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var gameID = command.getGameID();
         var auth = command.getAuthToken();
 
+        String username = authDAO.getUsername(auth);
+        GameData game = gameDAO.getGame(gameID);
+
         if (!authDAO.authExists(auth)) {
             throw new InvalidAuthTokenException();
         }
@@ -87,12 +90,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         switch (command.getCommandType()) {
             case CONNECT -> {
                 clients.add(ctx.session);
+                if (username.equals(game.whiteUsername())) {
+                    sendToAllClients(new NotificationMessage(username + " joined the game as WHITE"));
+                } else if (username.equals(game.blackUsername())) {
+                    sendToAllClients(new NotificationMessage(username + " joined the game as BLACK"));
+                } else {
+                    sendToAllClients(new NotificationMessage(username + " is now watching the game"));
+                }
             }
             case MAKE_MOVE -> {
                 ChessMove move = gson.fromJson(ctx.message(), MakeMoveCommand.class).getMove();
                 System.out.println(move);
-
-                var game = gameDAO.getGame(gameID);
 
                 try {
                     game.game().makeMove(move);
@@ -104,27 +112,50 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 gameDAO.updateGame(gameID,game);
 
                 // Docs suggest doing the checking before sending messages.
-                if (game.game().isInCheckmate(BLACK)) {
-                    // Send black is in checkmate notification
-                }
-
-                if (game.game().isInCheckmate(WHITE)) {
-
-                }
-
-                if (game.game().isInStalemate(WHITE) || game.game().isInStalemate(BLACK)) {
-
-                }
+                boolean blackCheckmateNotification = game.game().isInCheckmate(BLACK);
+                boolean whiteCheckmateNotification = game.game().isInCheckmate(WHITE);
+                boolean stalemateNotification = game.game().isInStalemate(WHITE) || game.game().isInStalemate(BLACK);
 
                 // Send move notification
                 sendToAllClients(new LoadGameMessage(game));
                 sendToAllClientsExcept(new NotificationMessage(""),ctx.session);
+
+                if (blackCheckmateNotification) {
+                    sendToAllClients(new NotificationMessage(game.blackUsername() + " is in checkmate!"));
+                }
+
+                if (whiteCheckmateNotification) {
+                    sendToAllClients(new NotificationMessage(game.blackUsername() + " is in checkmate!"));
+                }
+
+                if (stalemateNotification) {
+                    sendToAllClients(new NotificationMessage("The game has reached a stalemate!"));
+                }
             }
             case LEAVE -> {
                 clients.remove(ctx.session);
+                if (username.equals(game.whiteUsername())) {
+                    sendToAllClients(new NotificationMessage(username + " (WHITE) has left the game!"));
+                    var newGame = new GameData(game.gameID(),null,
+                                        game.blackUsername(),game.gameName(),game.game());
+                    gameDAO.updateGame(gameID,newGame);
+                } else if (username.equals(game.blackUsername())) {
+                    sendToAllClients(new NotificationMessage(username + " (BLACK) has left the game!"));
+                    var newGame = new GameData(game.gameID(),game.whiteUsername(),
+                            null,game.gameName(),game.game());
+                    gameDAO.updateGame(gameID,newGame);
+                } else {
+                    sendToAllClients(new NotificationMessage(username + " has stopped watching the game"));
+                }
             }
             case RESIGN -> {
+                sendToAllClients(new NotificationMessage(username + " resigned."));
 
+                if (username.equals(game.whiteUsername())) {
+                    sendToAllClients(new NotificationMessage(game.blackUsername() + " is victorious!"));
+                } else if (username.equals(game.blackUsername())) {
+                    sendToAllClients(new NotificationMessage(game.whiteUsername() + " is victorious!"));
+                }
             }
         }
     }

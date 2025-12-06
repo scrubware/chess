@@ -39,6 +39,21 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
+    public void removeGame(int gameID) {
+        games.remove(gameID - 1);
+    }
+
+    @Override
+    public void lockGame(int gameID) {
+
+    }
+
+    @Override
+    public boolean getGameLocked(int gameID) {
+        return false;
+    }
+
+    @Override
     public Collection<GameData> listGames() {
         return games;
     }

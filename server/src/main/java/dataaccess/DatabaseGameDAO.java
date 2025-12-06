@@ -74,13 +74,14 @@ public class DatabaseGameDAO implements GameDAO {
         try (var conn = DatabaseManager.getConnection()) {
             createGameTable(conn);
 
-            String sql = "INSERT INTO game (white, black, gname, gdata) VALUES (?,?,?,?)";
+            String sql = "INSERT INTO game (white, black, gname, gdata, locked) VALUES (?,?,?,?,?)";
 
             try (var statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1,null);
                 statement.setString(2,null);
                 statement.setString(3,name);
                 statement.setString(4,gson.toJson(new ChessGame()));
+                statement.setBoolean(5,false);
 
                 statement.executeUpdate();
 
@@ -94,6 +95,64 @@ public class DatabaseGameDAO implements GameDAO {
             }
         } catch (Exception e) {
             return -1;
+        }
+    }
+
+    @Override
+    public void removeGame(int gameID) {
+        try (var conn = DatabaseManager.getConnection()) {
+
+            String sql = "DELETE FROM game WHERE id=?";
+
+            var statement = conn.prepareStatement(sql);
+            statement.setInt(1,gameID);
+            statement.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void lockGame(int gameID) {
+        try (var conn = DatabaseManager.getConnection()) {
+            createGameTable(conn);
+
+            String sql = "UPDATE game SET locked=? WHERE id=?";
+
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setBoolean(1, true);
+                statement.setInt(5,gameID);
+
+                int rows = statement.executeUpdate();
+
+                // This condition runs if 'WHERE id=?;' call failed.
+                if (rows == 0) {
+                    throw new SQLException();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean getGameLocked(int gameID) {
+        try (var conn = DatabaseManager.getConnection()) {
+            createGameTable(conn);
+
+            String sql = "SELECT locked FROM game WHERE id=?";
+
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.setInt(1,gameID);
+                var result = statement.executeQuery();
+
+                result.next();
+                return result.getBoolean("locked");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

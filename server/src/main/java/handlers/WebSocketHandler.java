@@ -128,10 +128,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                 if (game.game().isInCheckmate(WHITE)) {
                     sendToAllClients(new NotificationMessage(game.whiteUsername() + " is in checkmate!"));
+                    sendToAllClients(new GameCompleteMessage(null));
+                    gameDAO.removeGame(game.gameID());
                 }
 
                 if (game.game().isInStalemate(WHITE) || game.game().isInStalemate(BLACK)) {
                     sendToAllClients(new NotificationMessage("The game has reached a stalemate!"));
+                    sendToAllClients(new GameCompleteMessage(null));
+                    gameDAO.removeGame(game.gameID());
                 }
             }
             case LEAVE -> {

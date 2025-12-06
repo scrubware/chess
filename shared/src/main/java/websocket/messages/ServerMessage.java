@@ -15,7 +15,8 @@ public class ServerMessage {
         LOAD_GAME,
         LOAD_DATA,
         ERROR,
-        NOTIFICATION
+        NOTIFICATION,
+        GAME_COMPLETE
     }
 
     public ServerMessage(ServerMessageType type) {

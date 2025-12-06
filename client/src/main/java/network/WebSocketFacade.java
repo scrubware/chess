@@ -15,24 +15,30 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static websocket.commands.UserGameCommand.CommandType.CONNECT;
+
 public class WebSocketFacade extends Endpoint {
 
     public Session session;
 
     private final Gson gson = new Gson();
     private final String address;
+    private final Client client;
 
-    public WebSocketFacade(int port) {
+    public WebSocketFacade(int port, Client client) {
         address = "ws://localhost:" + port + "/ws";
+        this.client = client;
     }
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
-    public void connect() throws DeploymentException, IOException, URISyntaxException {
+    public void connect(String authToken, int gameID) throws DeploymentException, IOException, URISyntaxException {
         URI uri = new URI(address);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         session = container.connectToServer(this, uri);
+
+        session.getBasicRemote().sendText(gson.toJson(new UserGameCommand(CONNECT,authToken,gameID)));
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
@@ -41,6 +47,8 @@ public class WebSocketFacade extends Endpoint {
                 switch (serverMessage.getServerMessageType()) {
                     case LOAD_GAME -> {
                         var game = gson.fromJson(message, LoadGameMessage.class).getGame();
+                        client.updateGame(game);
+                        client.drawBoard(null);
                     }
                     case ERROR -> {
                         var errorMessage = gson.fromJson(message, ErrorMessage.class).getErrorMessage();

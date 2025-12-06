@@ -150,11 +150,11 @@ public class ChessGame {
         var piece = board.getPiece(move.startPosition);
 
         if (!validMoves(move.startPosition).contains(move)) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Not a valid move!");
         }
 
         if (currentTeam != piece.getTeamColor()) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Not your turn!");
         }
 
         // Remove piece from old position

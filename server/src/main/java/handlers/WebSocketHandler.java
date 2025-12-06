@@ -97,7 +97,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 try {
                     game.game().makeMove(move);
                 } catch (InvalidMoveException e) {
-                    sendToClient(new ErrorMessage("Error! That is not a valid move!"), ctx.session);
+                    sendToClient(new ErrorMessage("Error! " + e.getMessage()), ctx.session);
                     break;
                 }
 

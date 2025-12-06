@@ -1,10 +1,10 @@
+package network;
+
 import chess.*;
 import exceptions.*;
 import jakarta.websocket.DeploymentException;
 import model.AuthData;
 import model.GameData;
-import network.ServerFacade;
-import network.WebSocketFacade;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,7 +33,7 @@ public class Client {
 
     public Client(int port) {
         http = new ServerFacade(port);
-        ws = new WebSocketFacade(port);
+        ws = new WebSocketFacade(port, this);
     }
 
     private void exitOne() {
@@ -127,6 +127,10 @@ public class Client {
                 exiting = 0;
             }
         } while (!closing);
+    }
+
+    public void updateGame(GameData game) {
+        this.game = game;
     }
 
     private ChessPosition stringToPosition(String string) {
@@ -231,7 +235,8 @@ public class Client {
         ws.sendLeave();
     }
 
-    private void drawBoard(ChessPosition validMovesPosition) {
+    public void drawBoard(ChessPosition validMovesPosition) {
+        System.out.println();
         if (teamColor == ChessGame.TeamColor.BLACK) {
             System.out.println(game.game().toStringBlack(validMovesPosition));
         } else { // This covers also the null case where the user is observing.
@@ -512,7 +517,7 @@ public class Client {
 
         System.out.println("Trying to join...");
         http.joinGame(auth,teamColor.toString(),game.gameID());
-        ws.connect();
+        ws.connect(auth.authToken(),game.gameID());
         System.out.println("Joined!\n");
 
         drawBoard(null);

@@ -74,11 +74,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         sendToAllClients(gameID, new NotificationMessage(username + " resigned."));
 
-//        send completed messages: if (username.equals(game.whiteUsername())) {
-//            sendToAllClients(gameID, new GameCompleteMessage(game.blackUsername()));
-//        had to comment this out because of the checker } else if (username.equals(game.blackUsername())) {
-//            sendToAllClients(gameID, new GameCompleteMessage(game.whiteUsername())); }
-
         gameDAO.lockGame(game.gameID());
     }
 

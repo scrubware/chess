@@ -194,6 +194,7 @@ public class DatabaseGameDAO implements GameDAO {
                 black VARCHAR(255),
                 gname VARCHAR(255) NOT NULL,
                 gdata longtext NOT NULL,
+                locked TINYINT(1),
                 PRIMARY KEY (id)
             )""";
 

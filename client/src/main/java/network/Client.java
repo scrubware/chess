@@ -26,6 +26,7 @@ public class Client {
     private ChessGame.TeamColor teamColor = null;
     private ArrayList<GameData> gamesList = null;
     private boolean tryingToResign = false;
+    private boolean gameLocked = false;
 
     // Network Components
     private final ServerFacade http;
@@ -114,6 +115,8 @@ public class Client {
                 System.out.println("Try fetching the available games again with \"list\"!");
             } catch (DeploymentException e) {
                 System.out.println("We couldn't reserve a connection to the server :/");
+            } catch (LockedGameException e) {
+                System.out.println("This game has already been completed");
             }
 
             if (!skipResetExit) {
@@ -148,6 +151,10 @@ public class Client {
 
     public void updateGame(GameData game) {
         this.game = game;
+    }
+
+    public void markGameLocked() {
+        gameLocked = true;
     }
 
     private ChessPosition stringToPosition(String string) {
@@ -207,6 +214,11 @@ public class Client {
             return;
         }
 
+        if (gameLocked) {
+            System.out.println("This game has already ended.");
+            return;
+        }
+
         if (tokens.length < 3) {
             System.out.println("You need to supply a start and end position for your move.");
             return;
@@ -240,6 +252,11 @@ public class Client {
 
         if (isObserver()) {
             System.out.println("You can't run this command while just observing.");
+            return;
+        }
+
+        if (gameLocked) {
+            System.out.println("This game has already ended.");
             return;
         }
 
@@ -394,7 +411,7 @@ public class Client {
             System.out.println("legal [row-column] - highlight legal moves for a piece");
             System.out.print("leave - exit the game");
 
-            if (!isObserver()) {
+            if (!(isObserver() || gameLocked)) {
                 System.out.println(" (does not forfeit)");
                 System.out.println("move [from row-column] [to row-column] - move a chess piece");
                 System.out.println("resign - forfeit the game");

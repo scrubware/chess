@@ -9,6 +9,7 @@ import dataaccess.GameDAO;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import exceptions.InvalidAuthTokenException;
+import exceptions.LockedGameException;
 import model.GameData;
 import results.ListGamesResult;
 
@@ -43,6 +44,10 @@ public class GameService {
 
         if (!(Objects.equals(playerColor, "WHITE") || Objects.equals(playerColor, "BLACK"))) {
             throw new BadRequestException();
+        }
+
+        if (gameDAO.getGameLocked(gameID)) {
+            throw new LockedGameException();
         }
 
         GameData game;

@@ -5,10 +5,7 @@ import com.google.gson.*;
 import jakarta.websocket.*;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -68,6 +65,12 @@ public class WebSocketFacade extends Endpoint {
                         System.out.println();
                         System.out.println(notificationMessage);
                         System.out.println();
+                        client.outputUserCursor();
+                    }
+                    case GAME_COMPLETE -> {
+                        String victor = gson.fromJson(message, GameCompleteMessage.class).getVictor();
+                        client.markGameLocked();
+                        System.out.println(victor + " is victorious!");
                         client.outputUserCursor();
                     }
                 }

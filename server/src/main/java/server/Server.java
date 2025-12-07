@@ -51,6 +51,7 @@ public class Server {
         exceptionCodes.put(UserNotRegisteredException.class,401);
         exceptionCodes.put(PasswordIncorrectException.class,401);
         exceptionCodes.put(AlreadyTakenException.class,403);
+        exceptionCodes.put(LockedGameException.class,403);
         exceptionCodes.put(InvalidGameIDException.class,500);
 
         // Handle those exceptions and send out the corresponding status code & error message

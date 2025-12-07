@@ -138,6 +138,7 @@ public class ServerFacade {
         switch (httpResponse.statusCode()) {
             case 200: return;
             case 401: throw new InvalidAuthTokenException();
+            case 403: throw new LockedGameException();
             case 500: throw new InvalidGameIDException();
             default: throw new IllegalStateException("Unexpected response code: " + httpResponse.statusCode());
         }

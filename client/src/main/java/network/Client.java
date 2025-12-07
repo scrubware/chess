@@ -13,6 +13,9 @@ import java.util.Collection;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+import static network.REPLTools.handleHelp;
+import static network.REPLTools.handleList;
+
 public class Client {
 
     // REPL state
@@ -70,7 +73,7 @@ public class Client {
             var tokens = input.split(" ");
             try {
                 switch (tokens[0].toLowerCase()) {
-                    case "h", "help" -> handleHelp();
+                    case "h", "help" -> handleHelp(auth, game, !(isObserver() || gameLocked));
                     case "fq", "force", "forcequit" -> closing = true;
                     case "q", "quit", "e", "exit" -> handleExit();
                     case "n", "no" -> handleNo();
@@ -81,7 +84,7 @@ public class Client {
                     // Once-Authed Commands
                     case "logout" -> handleLogout();
                     case "c", "create" -> handleCreate(tokens);
-                    case "list" -> handleList();
+                    case "list" -> gamesList = handleList(auth,http);
                     case "j", "join", "p", "play" -> handleJoin(tokens);
                     case "o", "observe" -> handleObserve(tokens);
 
@@ -326,53 +329,6 @@ public class Client {
         }
     }
 
-    private void handleList() throws URISyntaxException, IOException, InterruptedException {
-        if (auth == null) {
-            System.out.println("You gotta log in first!");
-            return;
-        }
-
-        Collection<GameData> games = http.listGames(auth);
-
-        if (games.isEmpty()) {
-            System.out.println("No games have been created yet!");
-            System.out.println("Use the \"create\" command to make one of your own!");
-        } else {
-            System.out.println("Here are all the current games:");
-        }
-
-        gamesList = new ArrayList<>();
-
-        int num = 0;
-        for (GameData entry : games) {
-            gamesList.add(entry);
-            String out = "  " + num + ". " + entry.gameName();
-
-            if (entry.whiteUsername() == null && entry.blackUsername() == null) {
-                out = out + "    no one has joined this game yet!";
-            } else {
-                if (entry.whiteUsername() != null) {
-                    out = out + "    playing as white: " + entry.whiteUsername();
-                }
-
-                if (entry.blackUsername() != null) {
-                    out = out + "    playing as black: " + entry.blackUsername();
-                }
-
-                if (entry.whiteUsername() == null) {
-                    out = out + "    WHITE is available!";
-                }
-
-                if (entry.blackUsername() == null) {
-                    out = out + "    BLACK is available!";
-                }
-            }
-
-            System.out.println(out);
-            num += 1;
-        }
-    }
-
     private void handleRegister(String[] tokens) throws URISyntaxException, IOException, InterruptedException {
         if (tokens.length == 1) {
             System.out.println("You need a username, password, and email!");
@@ -403,47 +359,6 @@ public class Client {
 
         http.logout(auth);
         auth = null;
-    }
-
-    private void handleHelp() {
-
-        System.out.println();
-
-        if (game != null) {
-            System.out.println("redraw - redraws the board");
-            System.out.println("legal [row-column] - highlight legal moves for a piece");
-            System.out.print("leave - exit the game");
-
-            if (!(isObserver() || gameLocked)) {
-                System.out.println(" (does not forfeit)");
-                System.out.println("move [from row-column] [to row-column] - move a chess piece");
-                System.out.println("resign - forfeit the game");
-            } else {
-                System.out.println();
-            }
-
-            System.out.println("\nUse the letter of the row and the number of the column for commands");
-            System.out.println("for instance, 'move a2 a4' or 'legal g1'");
-        } else {
-            if (auth != null) {
-                System.out.println("create [game name] - makes a new public game");
-                System.out.println("list - shows you all the public game IDs");
-                System.out.println("join [game #] [\"white\" or \"black\"] - joins an existing game");
-                System.out.println("observe [game #] - stalk someone else's game");
-                System.out.println("logout - this logs you out");
-            } else {
-                System.out.println("register [username] [password] [email] - makes an account");
-                System.out.println("login [username] [password] - logs into an existing account");
-            }
-            System.out.println("quit - kinda does what you'd expect");
-            System.out.println("help - looks like you figured this one out already!");
-
-            if (auth == null) {
-                System.out.println("\nof course, there are a bunch more things you can do once you're logged in!");
-            }
-        }
-
-        System.out.println();
     }
 
     private void handleLogin(String[] tokens) throws URISyntaxException, IOException, InterruptedException, AuthException {
@@ -509,7 +424,6 @@ public class Client {
             return;
         }
 
-
         if (observeNum > gamesList.size() || observeNum < 0) {
             System.out.println("That's not a real game #. Nice try bucko.");
             return;
@@ -549,7 +463,6 @@ public class Client {
             System.out.println("Your game # must be a number with no decimal places.");
             return;
         }
-
 
         if (num >= gamesList.size() || num < 0) {
             System.out.println("That's not a real game #. Nice try bucko.");

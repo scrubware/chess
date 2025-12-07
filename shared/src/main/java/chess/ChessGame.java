@@ -100,8 +100,12 @@ public class ChessGame {
         }
 
         public static TeamColor fromString(String string) {
-            if (string.equals("WHITE")) return WHITE;
-            if (string.equals("BLACK")) return BLACK;
+            if (string.equals("WHITE")) {
+                return WHITE;
+            }
+            if (string.equals("BLACK")) {
+                return BLACK;
+            }
             return null;
         }
     }

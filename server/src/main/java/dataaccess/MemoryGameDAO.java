@@ -38,10 +38,10 @@ public class MemoryGameDAO implements GameDAO {
         return index;
     }
 
-    @Override
-    public void removeGame(int gameID) {
-        games.remove(gameID - 1);
-    }
+//    @Override
+//    public void removeGame(int gameID) {
+//        games.remove(gameID - 1);
+//    }
 
     @Override
     public void lockGame(int gameID) {

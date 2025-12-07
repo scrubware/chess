@@ -98,20 +98,20 @@ public class DatabaseGameDAO implements GameDAO {
         }
     }
 
-    @Override
-    public void removeGame(int gameID) {
-        try (var conn = DatabaseManager.getConnection()) {
-
-            String sql = "DELETE FROM game WHERE id=?";
-
-            var statement = conn.prepareStatement(sql);
-            statement.setInt(1,gameID);
-            statement.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    @Override
+//    public void removeGame(int gameID) {
+//        try (var conn = DatabaseManager.getConnection()) {
+//
+//            String sql = "DELETE FROM game WHERE id=?";
+//
+//            var statement = conn.prepareStatement(sql);
+//            statement.setInt(1,gameID);
+//            statement.executeUpdate();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public void lockGame(int gameID) {

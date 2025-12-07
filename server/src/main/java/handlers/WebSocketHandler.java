@@ -82,7 +82,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData game = gameDAO.getGame(gameID);
 
         if (!authDAO.authExists(auth)) {
-            throw new InvalidAuthTokenException();
+            sendToClient(new ErrorMessage("Error! Login session has expired."), ctx.session);
+            return;
         }
 
         if (!clients.containsKey(gameID)) {
@@ -92,20 +93,54 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         switch (command.getCommandType()) {
             case CONNECT -> {
 
-                clients.get(gameID).add(ctx.session);
-                if (username.equals(game.whiteUsername())) {
-                    sendToAllClients(gameID, new NotificationMessage(username + " joined the game as WHITE"));
-                } else if (username.equals(game.blackUsername())) {
-                    sendToAllClients(gameID, new NotificationMessage(username + " joined the game as BLACK"));
-                } else {
-                    sendToAllClients(gameID, new NotificationMessage(username + " is now watching the game"));
+                if (game == null) {
+                    sendToClient(new ErrorMessage("Error! Invalid game index."), ctx.session);
+                    return;
                 }
 
-                sendToAllClients(gameID, new LoadDataMessage(game));
+                sendToClient(new LoadGameMessage(game), ctx.session);
+
+                clients.get(gameID).add(ctx.session);
+                if (username.equals(game.whiteUsername())) {
+                    sendToAllClientsExcept(gameID, new NotificationMessage(username + " joined the game as WHITE"), ctx.session);
+                } else if (username.equals(game.blackUsername())) {
+                    sendToAllClientsExcept(gameID, new NotificationMessage(username + " joined the game as BLACK"), ctx.session);
+                } else {
+                    sendToAllClientsExcept(gameID, new NotificationMessage(username + " is now watching the game"), ctx.session);
+                }
+
+                //sendToAllClients(gameID, new LoadDataMessage(game));
             }
             case MAKE_MOVE -> {
                 ChessMove move = gson.fromJson(ctx.message(), MakeMoveCommand.class).getMove();
                 System.out.println(move);
+
+                if (gameDAO.getGameLocked(game.gameID())) {
+                    sendToClient(new ErrorMessage("Error! Game has already completed."), ctx.session);
+                    return;
+                }
+
+                if (!(username.equals(game.whiteUsername()) || username.equals(game.blackUsername()))) {
+                    sendToClient(new ErrorMessage("Error! You cannot make moves as an observer."), ctx.session);
+                    return;
+                }
+
+                var piece = game.game().getBoard().getPiece(move.getEndPosition());
+                if (username.equals(game.whiteUsername()) && piece != null && piece.getTeamColor() != WHITE) {
+                    sendToClient(new ErrorMessage("Error! You move the opponent's pieces."), ctx.session);
+                    return;
+                } else if (username.equals(game.blackUsername()) && piece != null && piece.getTeamColor() != BLACK) {
+                    sendToClient(new ErrorMessage("Error! You move the opponent's pieces."), ctx.session);
+                    return;
+                }
+
+                if (username.equals(game.whiteUsername()) && game.game().getTeamTurn() != WHITE) {
+                    sendToClient(new ErrorMessage("Error! You cannot move on the opponent's turn."), ctx.session);
+                    return;
+                } else if (username.equals(game.blackUsername()) && game.game().getTeamTurn() != BLACK) {
+                    sendToClient(new ErrorMessage("Error! You cannot move on the opponent's turn."), ctx.session);
+                    return;
+                }
 
                 try {
                     game.game().makeMove(move);
@@ -120,29 +155,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 sendToAllClients(gameID, new LoadGameMessage(game));
                 sendToAllClientsExcept(gameID, new NotificationMessage(""),ctx.session);
 
-                if (game.game().isInCheck(BLACK)) {
-                    sendToAllClients(gameID, new NotificationMessage(game.blackUsername() + " is in check."));
-                }
-
-                if (game.game().isInCheck(WHITE)) {
-                    sendToAllClients(gameID, new NotificationMessage(game.whiteUsername() + " is in check."));
-                }
-
                 if (game.game().isInCheckmate(BLACK)) {
                     sendToAllClients(gameID, new NotificationMessage(game.blackUsername() + " is in checkmate!"));
-                    sendToAllClients(gameID, new GameCompleteMessage(game.whiteUsername()));
+                    //sendToAllClients(gameID, new GameCompleteMessage(game.whiteUsername()));
                     gameDAO.lockGame(game.gameID());
+                } else if (game.game().isInCheck(BLACK)) {
+                    sendToAllClients(gameID, new NotificationMessage(game.blackUsername() + " is in check."));
                 }
 
                 if (game.game().isInCheckmate(WHITE)) {
                     sendToAllClients(gameID, new NotificationMessage(game.whiteUsername() + " is in checkmate!"));
-                    sendToAllClients(gameID, new GameCompleteMessage(game.blackUsername()));
+                    //sendToAllClients(gameID, new GameCompleteMessage(game.blackUsername()));
                     gameDAO.lockGame(game.gameID());
+                } else if (game.game().isInCheck(WHITE)) {
+                    sendToAllClients(gameID, new NotificationMessage(game.whiteUsername() + " is in check."));
                 }
 
                 if (game.game().isInStalemate(WHITE) || game.game().isInStalemate(BLACK)) {
                     sendToAllClients(gameID, new NotificationMessage("The game has reached a stalemate!"));
-                    sendToAllClients(gameID, new GameCompleteMessage(null));
+                    //sendToAllClients(gameID, new GameCompleteMessage(null));
                     gameDAO.lockGame(game.gameID());
                 }
             }
@@ -162,16 +193,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     sendToAllClients(gameID, new NotificationMessage(username + " has stopped watching the game"));
                 }
 
-                sendToAllClients(gameID, new LoadDataMessage(game));
+                //sendToAllClients(gameID, new LoadDataMessage(game));
             }
             case RESIGN -> {
+
+                if (gameDAO.getGameLocked(gameID)) {
+                    sendToClient(new ErrorMessage("Error! The game has already completed."), ctx.session);
+                    return;
+                }
+
+                if (!(username.equals(game.whiteUsername()) || username.equals(game.blackUsername()))) {
+                    sendToClient(new ErrorMessage("Error! You cannot resign as an observer."), ctx.session);
+                    return;
+                }
+
                 sendToAllClients(gameID, new NotificationMessage(username + " resigned."));
 
-                if (username.equals(game.whiteUsername())) {
-                    sendToAllClients(gameID, new GameCompleteMessage(game.blackUsername()));
-                } else if (username.equals(game.blackUsername())) {
-                    sendToAllClients(gameID, new GameCompleteMessage(game.whiteUsername()));
-                }
+//                if (username.equals(game.whiteUsername())) {
+//                    sendToAllClients(gameID, new GameCompleteMessage(game.blackUsername()));
+//                } else if (username.equals(game.blackUsername())) {
+//                    sendToAllClients(gameID, new GameCompleteMessage(game.whiteUsername()));
+//                }
 
                 gameDAO.lockGame(game.gameID());
             }

@@ -122,7 +122,7 @@ public class DatabaseGameDAO implements GameDAO {
 
             try (var statement = conn.prepareStatement(sql)) {
                 statement.setBoolean(1, true);
-                statement.setInt(5,gameID);
+                statement.setInt(2,gameID);
 
                 int rows = statement.executeUpdate();
 
@@ -148,7 +148,9 @@ public class DatabaseGameDAO implements GameDAO {
                 var result = statement.executeQuery();
 
                 result.next();
-                return result.getBoolean("locked");
+                boolean r = result.getBoolean("locked");
+
+                return r;
             }
         } catch (Exception e) {
             e.printStackTrace();

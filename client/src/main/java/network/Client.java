@@ -117,6 +117,8 @@ public class Client {
                 System.out.println("We couldn't reserve a connection to the server :/");
             } catch (LockedGameException e) {
                 System.out.println("This game has already been completed");
+                teamColor = null;
+                game = null;
             }
 
             if (!skipResetExit) {
@@ -204,13 +206,14 @@ public class Client {
     }
 
     private void handleMove(String[] tokens) throws IOException {
-        if (game == null) {
-            System.out.println("You need to be in a game to run this command.");
-            return;
-        }
 
         if (isObserver()) {
             System.out.println("You can't run this command while just observing.");
+            return;
+        }
+
+        if (game == null) {
+            System.out.println("You need to be in a game to run this command.");
             return;
         }
 
@@ -493,16 +496,16 @@ public class Client {
             return;
         }
 
-        if (gamesList == null) {
-            System.out.println("Use the 'list' command to see the options first!");
-            return;
-        }
-
         int observeNum;
         try {
             observeNum = Integer.parseInt(tokens[1]);
         } catch (NumberFormatException e) {
             System.out.println("Your game # must be a number with no decimal places.");
+            return;
+        }
+
+        if (gamesList == null) {
+            System.out.println("Use the 'list' command to see the options first!");
             return;
         }
 
